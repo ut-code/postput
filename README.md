@@ -31,11 +31,6 @@ src/ 以下のファイルを編集しましょう
 ## バックエンド
 
 ```bash
-npm run build
-```
-でフロントエンドをビルドし、dist/ 以下に出力します
-
-```bash
 node server.js
 ```
 で起動します
@@ -45,4 +40,12 @@ npm install -g nodemon
 nodemon server.js
 ```
 とすると編集するたびに自動でリロードされる
+
+## ビルド
+
+デプロイするときは
+```bash
+npm run build
+```
+でフロントエンドをビルドし、dist/ 以下に出力
 
