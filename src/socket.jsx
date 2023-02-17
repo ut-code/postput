@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 
 const SocketContext = createContext();
-export const useSocket = () => (useContext(SocketContext));
+export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = (props) => {
   const [ws, setWs] = useState(null);
@@ -23,10 +23,10 @@ export const SocketProvider = (props) => {
         setMessages(JSON.parse(event.data));
       });
       ws.addEventListener("open", (event) => {
-        ws.send(JSON.stringify({type: "fetch"}));
+        ws.send(JSON.stringify({ type: "fetch" }));
       });
       setSend((send) => (message) => {
-        ws.send(JSON.stringify({type: "message", data: message}));
+        ws.send(JSON.stringify({ type: "message", data: message }));
       });
     }
   }, [ws]);
