@@ -2,10 +2,13 @@
 
 ## 環境構築
 
+まずは Git で管理するためのディレクトリを作成し、VSCode で開きます。ターミナルを開き、次のコマンドを実行しましょう。
+
 ```bash
-# このリポジトリをclone
-git clone git@github.com:ut-code/ut-communication.git
-cd ut-communication
+git init
+git remote add origin git@github.com:ut-code/ut-communication.git
+git switch -c main
+git pull origin main
 npm install
 # 作業用のブランチを作る
 git switch -c ブランチ名
