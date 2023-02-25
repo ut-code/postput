@@ -8,14 +8,16 @@ export const SocketProvider = (props) => {
   const [send, setSend] = useState();
   const [messages, setMessages] = useState([]);
   useEffect(() => {
-    setWs(() => {
-      try {
-        return new WebSocket("ws://localhost:3000/");
-      } catch {
+    const ws = new WebSocket("ws://localhost:3000/");
+    setWs(ws);
+    ws.onerror = () => {
+      const ws2 = new WebSocket("wss://postput-test-server.onrender.com/");
+      setWs(ws2);
+      ws2.onerror = () => {
         console.log("WebSocket connection failed");
-        return null;
-      }
-    });
+        setWs(null);
+      };
+    };
   }, []);
   useEffect(() => {
     if (ws != null) {
