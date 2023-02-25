@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.9",
     "@mui/material": "^5.11.9",
+    "@prisma/client": "^4.10.1",
     "express": "^4.18.2",
     "express-ws": "^5.0.2",
     "react": "^18.2.0",
@@ -22,6 +23,7 @@
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "@vitejs/plugin-react-swc": "^3.0.0",
+    "prisma": "^4.10.1",
     "vite": "^4.1.0"
   }
 }
