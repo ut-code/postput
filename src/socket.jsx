@@ -22,7 +22,10 @@ export const SocketProvider = (props) => {
   useEffect(() => {
     if (ws != null) {
       ws.addEventListener("message", (event) => {
-        setMessages(JSON.parse(event.data));
+        const json = JSON.parse(event.data);
+        if(json.type === "messageAll"){
+          setMessages(json.messages);
+        }
       });
       ws.addEventListener("open", (event) => {
         ws.send(JSON.stringify({ type: "fetch" }));

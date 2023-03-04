@@ -25,8 +25,8 @@ function App() {
         </Grid>
         {messages.map((m) => (
           <>
-            <Grid item xs={12} key={m}>
-              {m}
+            <Grid item xs={12} key={m.id}>
+              {m.text}
             </Grid>
           </>
         ))}

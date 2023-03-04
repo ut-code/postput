@@ -8,7 +8,7 @@ app.use(express.static("dist"));
 
 app.ws("/", function (ws, req) {
   const broadcast = async () => {
-    const messages = await database.getMessageTextAll();
+    const messages = JSON.stringify(await database.getMessageAll());
     wsInstance.getWss("/").clients.forEach((c) => {
       c.send(messages);
     });
@@ -20,7 +20,7 @@ app.ws("/", function (ws, req) {
       await database.createMessage(json);
       await broadcast();
     } else if (json.type === "fetch") {
-      const messages = await database.getMessageTextAll();
+      const messages = JSON.stringify(await database.getMessageAll());
       ws.send(messages);
     }
   });
