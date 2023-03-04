@@ -23,8 +23,11 @@ export const SocketProvider = (props) => {
     if (ws != null) {
       ws.addEventListener("message", (event) => {
         const json = JSON.parse(event.data);
+        console.log(json);
         if(json.type === "messageAll"){
           setMessages(json.messages);
+        }else if(json.type === "error"){
+          console.error("server error: " + json.message);
         }
       });
       ws.addEventListener("open", (event) => {

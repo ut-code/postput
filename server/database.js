@@ -1,26 +1,25 @@
 import { PrismaClient } from "@prisma/client";
 const client = new PrismaClient();
 
-export const getMessageAll = async () => {
+export const getMessageAll = async (onError) => {
   try {
     const messages = await client.message.findMany();
-    return {
-      type: "messageAll",
-      messages: messages.map((m) => ({
+    return messages.map((m) => ({
         id: m.id,
         name: m.name,
         text: m.text,
         sendTime: m.sendTime,
         updateTime: m.updateTime,
         tags: m.tags ? m.tags.map((t) => t.name) : [],
-      })),
-    };
+      }));
   } catch (e) {
     console.error(e.message);
+    onError(e.message);
   }
+  return [];
 };
 
-export const createMessage = async (message) => {
+export const createMessage = async (message, onError) => {
   try {
     await client.message.create({
       data: {
@@ -51,5 +50,6 @@ export const createMessage = async (message) => {
     });
   } catch (e) {
     console.error(e.message);
+    onError(e.message);
   }
 };
