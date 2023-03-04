@@ -28,7 +28,7 @@ export const SocketProvider = (props) => {
         ws.send(JSON.stringify({ type: "fetch" }));
       });
       setSend((send) => (message) => {
-        ws.send(JSON.stringify({ type: "message", data: message }));
+        ws.send(JSON.stringify({ ...message, type: "createMessage" }));
       });
     }
   }, [ws]);

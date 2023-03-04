@@ -14,4 +14,19 @@ model Message {
   id   Int    @id @default(autoincrement())
   name String
   text String
+  sendTime DateTime
+  updateTime DateTime
+  tags TagOnMessage[]
+}
+model Tag {
+  id Int @id @default(autoincrement())
+  name String @unique
+  messages TagOnMessage[]
+}
+model TagOnMessage {
+  message       Message     @relation(fields: [messageId], references: [id])
+  messageId Int
+  tag Tag @relation(fields: [tagId], references: [id])
+  tagId Int
+  @@id([messageId, tagId])
 }

@@ -45,7 +45,7 @@ function App() {
           <Button
             variant="contained"
             onClick={() => {
-              send(text);
+              send({text: text});
               setText("");
             }}
             endIcon={<SendIcon />}

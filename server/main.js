@@ -2,29 +2,26 @@ import express from "express";
 import expressWs from "express-ws";
 const wsInstance = expressWs(express());
 const app = wsInstance.app;
-
-import { PrismaClient } from "@prisma/client";
-const client = new PrismaClient();
+import * as database from "./database.js";
 
 app.use(express.static("dist"));
 
 app.ws("/", function (ws, req) {
   const broadcast = async () => {
-    const messages = await client.message.findMany();
+    const messages = await database.getMessageTextAll();
     wsInstance.getWss("/").clients.forEach((c) => {
-      c.send(JSON.stringify(messages.map((m) => (m.text))));
+      c.send(messages);
     });
   };
   ws.on("message", async function (msg) {
     console.log(msg);
     const json = JSON.parse(msg);
-    if (json.type === "message") {
-      // messages.push(json.data);
-      await client.message.create({ data: { name: "test", text: json.data } });
+    if (json.type === "createMessage") {
+      await database.createMessage(json);
       await broadcast();
     } else if (json.type === "fetch") {
-      const messages = await client.message.findMany();
-      ws.send(JSON.stringify(messages.map((m) => (m.text))));
+      const messages = await database.getMessageTextAll();
+      ws.send(messages);
     }
   });
   // console.log('socket', req.testing);

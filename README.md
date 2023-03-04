@@ -10,7 +10,10 @@ git remote add origin git@github.com:ut-code/ut-communication.git
 git switch -c main
 git pull origin main
 npm install
-# 作業用のブランチを作る
+```
+
+作業するときは作業用のブランチを作りましょう
+```bash
 git switch -c ブランチ名
 ```
 
@@ -34,15 +37,9 @@ src/ 以下のファイルを編集しましょう
 ## バックエンド
 
 ```bash
-node server.js
+npm run server_dev
 ```
 で起動します
-
-```bash
-npm install -g nodemon
-nodemon server.js
-```
-とすると編集するたびに自動でリロードされる
 
 ## ビルド
 
