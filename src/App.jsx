@@ -20,6 +20,7 @@ function App() {
   const footerHeight = 120;
   return (
     <>
+      <link rel="stylesheet" href="../style.css"></link>
       <Box
         sx={{
           position: "absolute",
