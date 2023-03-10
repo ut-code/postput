@@ -50,7 +50,7 @@ function App() {
               {new Date(m.sendTime).getMonth() + 1}月
               {new Date(m.sendTime).getDate()}日
               {new Date(m.sendTime).getHours()}:
-              {new Date(m.sendTime).getMinutes() <= 10 ? ("0" + new Date(m.sendTime).getMinutes().toString()) : (new Date(m.sendTime).getMinutes())}
+              {new Date(m.sendTime).getMinutes() < 10 ? ("0" + new Date(m.sendTime).getMinutes().toString()) : (new Date(m.sendTime).getMinutes())}
               {m.tags.map((t) => (
                 <span class="tag" key={t}>#{t}</span>
               ))}
