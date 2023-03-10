@@ -45,14 +45,17 @@ function App() {
         <Stack spacing={1}>
           {socket.messages.map((m) => (
             <Box key={m.id} sx={{ border: 1 }}>
-              {m.name}
-              {new Date(m.sendTime).toDateString()}
-              {new Date(m.sendTime).toTimeString()}
+              <span class="name">{m.name}</span>
+              { }
+              {new Date(m.sendTime).getMonth() + 1}月
+              {new Date(m.sendTime).getDate()}日
+              {new Date(m.sendTime).getHours()}:
+              {new Date(m.sendTime).getMinutes() <= 10 ? ("0" + new Date(m.sendTime).getMinutes().toString()) : (new Date(m.sendTime).getMinutes())}
               {m.tags.map((t) => (
-                <span key={t}>#{t}</span>
+                <span class="tag" key={t}>#{t}</span>
               ))}
               <br />
-              {m.text}
+              <p class="message">{m.text}</p>
             </Box>
           ))}
         </Stack>
