@@ -1,6 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 const client = new PrismaClient();
 
+export const getTagAll = async (onError) => {
+  try {
+    const tags = await client.tag.findMany({
+    });
+    return tags.map((m) => ({
+      id: m.id,
+      name: m.name,
+    }));
+  } catch (e) {
+    console.error(e.message);
+    onError(e.message);
+  }
+  return [];
+};
 export const getMessageAll = async (onError) => {
   try {
     const messages = await client.message.findMany({
