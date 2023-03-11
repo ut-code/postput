@@ -94,6 +94,30 @@ function SendMessage(props) {
     </Grid>
   );
 }
+
+function Tag(props) {
+  const { tagname } = props;
+  return (<>
+    <span class="tag">
+    #{tagname}
+    </span>
+  </>)
+}
+
+function Name(props) {
+  const { name } = props;
+  return (<>
+    <span class="name">{name}</span>
+  </>)
+}
+
+function Message(props) {
+  const { text } = props;
+  return (<>
+    <p class="message">{text}</p>
+  </>)
+}
+
 function App() {
   const [count, setCount] = useState(0);
   const socket = useSocket();
@@ -118,42 +142,22 @@ function App() {
       >
         メッセージ一覧:
       </Box>
-      <Box
-        sx={{
-          overflow: "auto",
-          position: "absolute",
-          top: headerHeight,
-          bottom: footerHeight,
-          left: 0,
-          width: "100%",
-        }}
-      >
+      <Box sx={{ overflow: "auto", position: "absolute", top: headerHeight, bottom: footerHeight, left: 0, width: "100%", }}>
         <Stack spacing={1}>
           {socket.messages.map((m) => (
             <Box key={m.id} sx={{ border: 1 }}>
-              <span class="name">{m.name}</span>
-              {}
+              <Name name={m.name}/>
               <ShowDate date={new Date(m.sendTime)} />
               {m.tags.map((t) => (
-                <span class="tag" key={t}>
-                  #{t}
-                </span>
+                <Tag tagname={t}/>
               ))}
               <br />
-              <p class="message">{m.text}</p>
+              <Message text={m.text}/>
             </Box>
           ))}
         </Stack>
       </Box>
-      <Box
-        sx={{
-          position: "absolute",
-          left: 0,
-          bottom: 0,
-          width: "100%",
-          height: footerHeight,
-        }}
-      >
+      <Box sx={{ position: "absolute", left: 0, bottom: 0, width: "100%", height: footerHeight, }}>
         <TagEdit tags={tags} setTags={setTags} />
         <SendMessage
           text={text}
