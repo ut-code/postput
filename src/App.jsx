@@ -33,6 +33,13 @@ function Name(props) {
   </>)
 }
 
+function Message(props) {
+  const { text } = props;
+  return (<>
+    <p class="message">{text}</p>
+  </>)
+}
+
 function App() {
   const [count, setCount] = useState(0);
   const socket = useSocket();
@@ -65,10 +72,10 @@ function App() {
               <Name name={m.name}/>
               <ShowDate date={new Date(m.sendTime)} />
               {m.tags.map((t) => (
-                <Tag tagname={t}></Tag>
+                <Tag tagname={t}/>
               ))}
               <br />
-              <p class="message">{m.text}</p>
+              <Message text={m.text}/>
             </Box>
           ))}
         </Stack>
