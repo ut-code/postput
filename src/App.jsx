@@ -9,63 +9,91 @@ import { useSocket } from "./socket";
 
 function ShowDate(props) {
   const { date } = props;
-  return (<>
-    {date.getMonth() + 1}月
-    {date.getDate()}日
-    {date.getHours()}:
-    {date.getMinutes() < 10 ? ("0" + date.getMinutes().toString()) : (date.getMinutes())}
-  </>)
+  return (
+    <>
+      {date.getMonth() + 1}月{date.getDate()}日{date.getHours()}:
+      {date.getMinutes() < 10
+        ? "0" + date.getMinutes().toString()
+        : date.getMinutes()}
+    </>
+  );
 }
 
 function TagEdit(props) {
-  const {tags, setTags} = props;
+  const { tags, setTags } = props;
   const [tagInput, setTagInput] = useState("");
   const addTag = () => {
-    if(tagInput !== "" && tagInput !== "#"){
+    if (tagInput !== "" && tagInput !== "#") {
       // 先頭の#は不要
       const tagInputWithoutSharp = tagInput.slice(1);
-      if(tags.indexOf(tagInputWithoutSharp) === -1){
+      if (tags.indexOf(tagInputWithoutSharp) === -1) {
         setTags(tags.concat([tagInputWithoutSharp]));
         setTagInput("");
       }
     }
   };
-  return(<Grid container spacing={1} alignItems="baseline">
-    <Grid item>
-      タグ:
+  return (
+    <Grid container spacing={1} alignItems="baseline">
+      <Grid item>タグ:</Grid>
+      {tags.map((t) => (
+        <Grid item>
+          <span key={t}>#{t}</span>
+        </Grid>
+      ))}
+      <Grid item>
+        <input
+          value={tagInput}
+          onChange={(e) => {
+            let value = e.target.value;
+            if (!value.startsWith("#")) {
+              value = "#" + value;
+            }
+            if (value === "#") {
+              value = "";
+            }
+            setTagInput(value);
+          }}
+          size="small"
+          placeholder="タグを追加"
+          onKeyPress={(e) => {
+            if (e.isComposing || e.keyCode === 229) {
+              return;
+            }
+            if (e.key === "Enter") {
+              addTag();
+            }
+            return false;
+          }}
+        />
+      </Grid>
     </Grid>
-    {tags.map((t) => (<Grid item>
-      <span key={t}>#{t}</span>
-    </Grid>))}
-    <Grid item>
-      <input
-        value={tagInput}
-        onChange={(e) => {
-          let value = e.target.value;
-          if(!value.startsWith("#")){
-            value = "#" + value;
-          }
-          if(value === "#"){
-            value = "";
-          }
-          setTagInput(value);
-        }}
-        size="small"
-        placeholder="タグを追加"
-        onKeyPress={(e) => {
-          if (e.isComposing || e.keyCode === 229) {
-            return;
-          }
-          if (e.key === "Enter") {
-            addTag();
-          }
-          return false;
-        }}
-      />
-    </Grid>
-  </Grid>);
+  );
 }
 
+function SendMessage(props) {
+  const { text, setText, send } = props;
+  return (
+    <Grid container spacing={1} alignItems="baseline">
+      <Grid item xs>
+        <TextField
+          fullWidth
+          variant="standard"
+          multiline
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+          }}
+          placeholder="送信するテキスト"
+        />
+      </Grid>
+      <Grid item>
+        <Button variant="contained" onClick={send} endIcon={<SendIcon />}>
+          送信
+        </Button>
+      </Grid>
+    </Grid>
+  );
+}
 function App() {
   const [count, setCount] = useState(0);
   const socket = useSocket();
@@ -104,10 +132,12 @@ function App() {
           {socket.messages.map((m) => (
             <Box key={m.id} sx={{ border: 1 }}>
               <span class="name">{m.name}</span>
-              { }
+              {}
               <ShowDate date={new Date(m.sendTime)} />
               {m.tags.map((t) => (
-                <span class="tag" key={t}>#{t}</span>
+                <span class="tag" key={t}>
+                  #{t}
+                </span>
               ))}
               <br />
               <p class="message">{m.text}</p>
@@ -124,38 +154,19 @@ function App() {
           height: footerHeight,
         }}
       >
-        <Grid container spacing={1} alignItems="baseline">
-          <Grid item xs={12}>
-            <TagEdit tags={tags} setTags={setTags} />
-          </Grid>
-          <Grid item xs>
-            <TextField
-              fullWidth
-              variant="standard"
-              value={text}
-              onChange={(e) => {
-                setText(e.target.value);
-              }}
-              label="送信するテキスト"
-            />
-          </Grid>
-          <Grid item>
-            <Button
-              variant="contained"
-              onClick={() => {
-                socket.send({
-                  name: "名無し", //送信者
-                  text: text, //内容
-                  tags: tags, //タグ
-                });
-                setText("");
-              }}
-              endIcon={<SendIcon />}
-            >
-              送信
-            </Button>
-          </Grid>
-        </Grid>
+        <TagEdit tags={tags} setTags={setTags} />
+        <SendMessage
+          text={text}
+          setText={setText}
+          send={() => {
+            socket.send({
+              name: "名無し", //送信者
+              text: text, //内容
+              tags: tags, //タグ
+            });
+            setText("");
+          }}
+        />
       </Box>
     </>
   );
