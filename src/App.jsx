@@ -128,6 +128,8 @@ function App() {
   // 入力欄に入力中のテキストとタグ
   const [text, setText] = useState("");
   const [tags, setTags] = useState([]);
+  const [currentTags, setCurrentTags] = useState([]);
+
 
   const headerHeight = 60;
   const footerHeight = 120;
@@ -155,7 +157,11 @@ function App() {
         <Box sx={{position: "absolute", top: "80%", left: "10%", width: "80%", height: "15%", background: "yellowgreen"}}>
           <p>#最近更新されたタグ</p>
           {socket.recentTags.map((t) => (
-            <Tag tagname={t.name}></Tag>
+            <a href="#" onClick={() => {
+              if (currentTags.indexOf(t.name) === -1) {
+              setCurrentTags(currentTags.concat([t.name]));
+              }
+            }}><Tag tagname={t.name}></Tag><br/></a>
           ))}
           
         </Box>
@@ -169,10 +175,14 @@ function App() {
             left: 0,
             width: "100%",
             height: headerHeight,
-            background: "red",
+            background: "yellow",
           }}
         >
           メッセージ一覧:
+        <p>今は{
+          currentTags.map((t)=>
+          <Tag tagname={t}></Tag>
+          )}を表示しています</p>
         </Box>
         <Box sx={{ overflow: "auto", position: "absolute", top: headerHeight, bottom: footerHeight, left: 0, width: "100%", }}>
           <Stack spacing={1}>
