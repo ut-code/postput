@@ -37,7 +37,11 @@ function TagEdit(props) {
       <Grid item>タグ:</Grid>
       {tags.map((t) => (
         <Grid item>
-          <span key={t}>#{t}</span>
+          <a href="#" onClick={() => (
+            setTags(tags.filter(
+              (eachTag) => (eachTag !== t)
+            ))
+          )}><Tag tagname={t}></Tag></a>
         </Grid>
       ))}
       <Grid item>
