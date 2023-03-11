@@ -137,9 +137,9 @@ function App() {
       <Box sx={{position: "absolute", top: 0, left: 0, width: "30%", height: "100%", background: "skyblue"}}>
         <Box sx={{position: "absolute", top: "1%", left: "10%", width: "80%", height: "10%", background: "yellowgreen"}}>タグを検索
           <select>
-            <option value="aaa"><Tag tagname="aaa"></Tag></option>
-            <option value="bbb"><Tag tagname="bbb"></Tag></option>
-            <option value="ccc"><Tag tagname="ccc"></Tag></option>
+          {socket.tags.map((t) => (
+            <option><Tag tagname={t.name}></Tag></option>
+          ))}
           </select>
         </Box>
         <Box sx={{position: "absolute", top: "15%", left: "10%", width: "80%", height: "30%", background: "yellowgreen"}}>
@@ -154,7 +154,10 @@ function App() {
         </Box>
         <Box sx={{position: "absolute", top: "80%", left: "10%", width: "80%", height: "15%", background: "yellowgreen"}}>
           <p>#最近更新されたタグ</p>
-          <Tag tagname="aaa"></Tag>
+          {socket.recentTags.map((t) => (
+            <Tag tagname={t.name}></Tag>
+          ))}
+          
         </Box>
 
       </Box>
