@@ -17,6 +17,15 @@ function ShowDate(props) {
   </>)
 }
 
+function Tag(props) {
+  const { tagname } = props;
+  return (<>
+    <span class="tag">
+    #{tagname}
+    </span>
+  </>)
+}
+
 function App() {
   const [count, setCount] = useState(0);
   const socket = useSocket();
@@ -59,7 +68,7 @@ function App() {
               { }
               <ShowDate date={new Date(m.sendTime)} />
               {m.tags.map((t) => (
-                <span class="tag" key={t}>#{t}</span>
+                <Tag tagname={t}></Tag>
               ))}
               <br />
               <p class="message">{m.text}</p>
