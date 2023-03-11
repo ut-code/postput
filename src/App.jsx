@@ -186,7 +186,20 @@ function App() {
         </Box>
         <Box sx={{ overflow: "auto", position: "absolute", top: headerHeight, bottom: footerHeight, left: 0, width: "100%", }}>
           <Stack spacing={1}>
-            {socket.messages.map((m) => (
+            {socket.messages.filter(
+
+              (m) => {
+                //m.tags...メッセージにあるタグ
+                let numberOfFoundTag = 0
+                for (const tag of m.tags) {
+                  if (currentTags.indexOf(tag) != -1)
+                  numberOfFoundTag++;
+                  
+                }
+                return numberOfFoundTag > 0
+              }
+
+            ).map((m) => (
               <Box key={m.id} sx={{ border: 1 }}>
                 <Name name={m.name}/>
                 <ShowDate date={new Date(m.sendTime)} />
