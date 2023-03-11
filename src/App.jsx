@@ -58,16 +58,7 @@ function App() {
       >
         メッセージ一覧:
       </Box>
-      <Box
-        sx={{
-          overflow: "auto",
-          position: "absolute",
-          top: headerHeight,
-          bottom: footerHeight,
-          left: 0,
-          width: "100%",
-        }}
-      >
+      <Box sx={{ overflow: "auto", position: "absolute", top: headerHeight, bottom: footerHeight, left: 0, width: "100%", }}>
         <Stack spacing={1}>
           {socket.messages.map((m) => (
             <Box key={m.id} sx={{ border: 1 }}>
@@ -82,15 +73,7 @@ function App() {
           ))}
         </Stack>
       </Box>
-      <Box
-        sx={{
-          position: "absolute",
-          left: 0,
-          bottom: 0,
-          width: "100%",
-          height: footerHeight,
-        }}
-      >
+      <Box sx={{ position: "absolute", left: 0, bottom: 0, width: "100%", height: footerHeight, }}>
         <Grid container spacing={1} alignItems="center">
           <Grid item xs={12}>
             タグ:
