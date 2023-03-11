@@ -17,6 +17,55 @@ function ShowDate(props) {
   </>)
 }
 
+function TagEdit(props) {
+  const {tags, setTags} = props;
+  const [tagInput, setTagInput] = useState("");
+  const addTag = () => {
+    if(tagInput !== "" && tagInput !== "#"){
+      // 先頭の#は不要
+      const tagInputWithoutSharp = tagInput.slice(1);
+      if(tags.indexOf(tagInputWithoutSharp) === -1){
+        setTags(tags.concat([tagInputWithoutSharp]));
+        setTagInput("");
+      }
+    }
+  };
+  return(<Grid container spacing={1} alignItems="baseline">
+    <Grid item>
+      タグ:
+    </Grid>
+    {tags.map((t) => (<Grid item>
+      <span key={t}>#{t}</span>
+    </Grid>))}
+    <Grid item>
+      <input
+        value={tagInput}
+        onChange={(e) => {
+          let value = e.target.value;
+          if(!value.startsWith("#")){
+            value = "#" + value;
+          }
+          if(value === "#"){
+            value = "";
+          }
+          setTagInput(value);
+        }}
+        size="small"
+        placeholder="タグを追加"
+        onKeyPress={(e) => {
+          if (e.isComposing || e.keyCode === 229) {
+            return;
+          }
+          if (e.key === "Enter") {
+            addTag();
+          }
+          return false;
+        }}
+      />
+    </Grid>
+  </Grid>);
+}
+
 function App() {
   const [count, setCount] = useState(0);
   const socket = useSocket();
@@ -24,7 +73,6 @@ function App() {
   // 入力欄に入力中のテキストとタグ
   const [text, setText] = useState("");
   const [tags, setTags] = useState([]);
-  const [tagInput, setTagInput] = useState("");
 
   const headerHeight = 60;
   const footerHeight = 120;
@@ -76,29 +124,9 @@ function App() {
           height: footerHeight,
         }}
       >
-        <Grid container spacing={1} alignItems="center">
+        <Grid container spacing={1} alignItems="baseline">
           <Grid item xs={12}>
-            タグ:
-            {tags.map((t) => (
-              <span key={t}>#{t}</span>
-            ))}
-            <TextField
-              variant="standard"
-              value={tagInput}
-              onChange={(e) => {
-                setTagInput(e.target.value);
-              }}
-              label="タグ"
-            />
-            <Button
-              variant="contained"
-              onClick={() => {
-                setTags(tags.concat([tagInput]));
-                setTagInput("");
-              }}
-            >
-              タグを追加
-            </Button>
+            <TagEdit tags={tags} setTags={setTags} />
           </Grid>
           <Grid item xs>
             <TextField
