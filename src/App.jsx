@@ -17,6 +17,22 @@ function ShowDate(props) {
   </>)
 }
 
+function Tag(props) {
+  const { tagname } = props;
+  return (<>
+    <span class="tag">
+    #{tagname}
+    </span>
+  </>)
+}
+
+function Name(props) {
+  const { name } = props;
+  return (<>
+    <span class="name">{name}</span>
+  </>)
+}
+
 function App() {
   const [count, setCount] = useState(0);
   const socket = useSocket();
@@ -55,11 +71,10 @@ function App() {
         <Stack spacing={1}>
           {socket.messages.map((m) => (
             <Box key={m.id} sx={{ border: 1 }}>
-              <span class="name">{m.name}</span>
-              { }
+              <Name name={m.name}/>
               <ShowDate date={new Date(m.sendTime)} />
               {m.tags.map((t) => (
-                <span class="tag" key={t}>#{t}</span>
+                <Tag tagname={t}></Tag>
               ))}
               <br />
               <p class="message">{m.text}</p>
@@ -80,7 +95,7 @@ function App() {
           <Grid item xs={12}>
             タグ:
             {tags.map((t) => (
-              <span key={t}>#{t}</span>
+              <Tag tagname={t}></Tag>
             ))}
             <TextField
               variant="standard"
