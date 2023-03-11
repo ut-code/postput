@@ -36,6 +36,7 @@ function Name(props) {
 function Message(props) {
   const { text } = props;
   return (<>
+    <br />
     <p class="message">{text}</p>
   </>)
 }
@@ -73,8 +74,7 @@ function App() {
               <ShowDate date={new Date(m.sendTime)} />
               {m.tags.map((t) => (
                 <Tag tagname={t}/>
-              ))}
-              <br />
+              ))}              
               <Message text={m.text}/>
             </Box>
           ))}
