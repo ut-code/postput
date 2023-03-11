@@ -3,11 +3,31 @@ const client = new PrismaClient();
 
 export const getTagAll = async (onError) => {
   try {
+    const tags = await client.tag.findMany({});
+    return tags.map((m) => ({
+      id: m.id,
+      name: m.name,
+      createTime: m.createTime,
+      updateTime: m.updateTime,
+    }));
+  } catch (e) {
+    console.error(e.message);
+    onError(e.message);
+  }
+  return [];
+};
+export const getTagRecentUpdate = async (onError) => {
+  try {
     const tags = await client.tag.findMany({
+      orderBy: {
+        updateTime: "desc",
+      },
     });
     return tags.map((m) => ({
       id: m.id,
       name: m.name,
+      createTime: m.createTime,
+      updateTime: m.updateTime,
     }));
   } catch (e) {
     console.error(e.message);
@@ -22,9 +42,9 @@ export const getMessageAll = async (onError) => {
         tags: {
           include: {
             tag: true,
-          }
+          },
         },
-      }
+      },
     });
     return messages.map((m) => ({
       id: m.id,
@@ -43,12 +63,13 @@ export const getMessageAll = async (onError) => {
 
 export const createMessage = async (message, onError) => {
   try {
+    const now = new Date();
     await client.message.create({
       data: {
         name: message.name || "名無し",
         text: message.text || "",
-        sendTime: new Date(),
-        updateTime: new Date(),
+        sendTime: now,
+        updateTime: now,
         tags:
           message.tags && message.tags.length > 0
             ? {
@@ -60,6 +81,8 @@ export const createMessage = async (message, onError) => {
                       },
                       create: {
                         name: t,
+                        createTime: now,
+                        updateTime: now,
                       },
                     },
                   },
@@ -68,6 +91,20 @@ export const createMessage = async (message, onError) => {
             : undefined,
       },
     });
+    await Promise.all(
+      message.tags.map((t) =>
+        (async () => {
+          await client.tag.update({
+            where: {
+              name: t,
+            },
+            data: {
+              updateTime: now,
+            },
+          });
+        })()
+      )
+    );
   } catch (e) {
     console.error(e.message);
     onError(e.message);

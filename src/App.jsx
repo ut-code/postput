@@ -144,10 +144,16 @@ function App() {
           height: headerHeight,
         }}
       >
-        タグ一覧:{" "}
+        すべてのタグ:
         {socket.tags.map((t) => (
           <Tag tagname={t.name} />
         ))}
+        <br/>
+        最近更新されたタグ:
+        {socket.recentTags.map((t) => (
+          <Tag tagname={t.name} />
+        ))}
+        <br/>
       </Box>
       <Box
         sx={{

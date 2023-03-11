@@ -21,6 +21,8 @@ model Message {
 model Tag {
   id Int @id @default(autoincrement())
   name String @unique
+  createTime DateTime
+  updateTime DateTime
   messages TagOnMessage[]
 }
 model TagOnMessage {

@@ -20,6 +20,7 @@ app.ws("/", (ws, req) => {
   const broadcast = async () => {
     const messages = await database.getMessageAll(onError);
     const tags = await database.getTagAll(onError);
+    const recentTags = await database.getTagRecentUpdate(onError);
     wsInstance.getWss("/").clients.forEach((c) => {
       c.send(
         JSON.stringify({
@@ -30,6 +31,11 @@ app.ws("/", (ws, req) => {
       c.send(JSON.stringify({
           type: "tagAll",
           tags: tags,
+        })
+      );
+      c.send(JSON.stringify({
+          type: "tagRecentUpdate",
+          tags: recentTags,
         })
       );
     });
@@ -53,6 +59,13 @@ app.ws("/", (ws, req) => {
         JSON.stringify({
           type: "tagAll",
           tags: tags,
+        })
+      );
+      const recentTags = await database.getTagRecentUpdate(onError);
+      ws.send(
+        JSON.stringify({
+          type: "tagRecentUpdate",
+          tags: recentTags,
         })
       );
     }
