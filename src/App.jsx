@@ -97,18 +97,20 @@ function SendMessage(props) {
 
 function Tag(props) {
   const { tagname } = props;
-  return (<>
-    <span class="tag">
-    #{tagname}
-    </span>
-  </>)
+  return (
+    <>
+      <span class="tag">#{tagname}</span>
+    </>
+  );
 }
 
 function Name(props) {
   const { name } = props;
-  return (<>
-    <span class="name">{name}</span>
-  </>)
+  return (
+    <>
+      <span class="name">{name}</span>
+    </>
+  );
 }
 
 function Message(props) {

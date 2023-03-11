@@ -9,19 +9,35 @@ app.use(express.static("dist"));
 app.ws("/", (ws, req) => {
   const onError = (message) => {
     wsInstance.getWss("/").clients.forEach((c) => {
-      c.send(JSON.stringify({
-        type: "error",
-        message: message,
-      }));
+      c.send(
+        JSON.stringify({
+          type: "error",
+          message: message,
+        })
+      );
     });
   };
   const broadcast = async () => {
     const messages = await database.getMessageAll(onError);
+    const tags = await database.getTagAll(onError);
+    const recentTags = await database.getTagRecentUpdate(onError);
     wsInstance.getWss("/").clients.forEach((c) => {
+      c.send(
+        JSON.stringify({
+          type: "messageAll",
+          messages: messages,
+        })
+      );
       c.send(JSON.stringify({
-        type: "messageAll",
-        messages: messages,
-      }));
+          type: "tagAll",
+          tags: tags,
+        })
+      );
+      c.send(JSON.stringify({
+          type: "tagRecentUpdate",
+          tags: recentTags,
+        })
+      );
     });
   };
   ws.on("message", async (msg) => {
@@ -32,10 +48,26 @@ app.ws("/", (ws, req) => {
       await broadcast();
     } else if (json.type === "fetch") {
       const messages = await database.getMessageAll(onError);
-      ws.send(JSON.stringify({
-        type: "messageAll",
-        messages: messages,
-      }));
+      ws.send(
+        JSON.stringify({
+          type: "messageAll",
+          messages: messages,
+        })
+      );
+      const tags = await database.getTagAll(onError);
+      ws.send(
+        JSON.stringify({
+          type: "tagAll",
+          tags: tags,
+        })
+      );
+      const recentTags = await database.getTagRecentUpdate(onError);
+      ws.send(
+        JSON.stringify({
+          type: "tagRecentUpdate",
+          tags: recentTags,
+        })
+      );
     }
   });
   // console.log('socket', req.testing);

@@ -7,6 +7,8 @@ export const SocketProvider = (props) => {
   const [ws, setWs] = useState(null);
   const [send, setSend] = useState();
   const [messages, setMessages] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [recentTags, setRecentTags] = useState([]);
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:3000/");
     setWs(ws);
@@ -26,6 +28,10 @@ export const SocketProvider = (props) => {
         console.log(json);
         if(json.type === "messageAll"){
           setMessages(json.messages);
+        } else if(json.type === "tagAll"){
+          setTags(json.tags);
+        } else if(json.type === "tagRecentUpdate"){
+          setRecentTags(json.tags);
         }else if(json.type === "error"){
           console.error("server error: " + json.message);
         }
@@ -44,6 +50,8 @@ export const SocketProvider = (props) => {
       value={{
         send: send,
         messages: messages,
+        tags: tags,
+        recentTags: recentTags,
       }}
     >
       {props.children}
