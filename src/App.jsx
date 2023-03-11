@@ -7,6 +7,16 @@ import Button from "@mui/material/Button";
 import SendIcon from "@mui/icons-material/Send";
 import { useSocket } from "./socket";
 
+function ShowDate(props) {
+  const { date } = props;
+  return (<>
+    {date.getMonth() + 1}月
+    {date.getDate()}日
+    {date.getHours()}:
+    {date.getMinutes() < 10 ? ("0" + date.getMinutes().toString()) : (date.getMinutes())}
+  </>)
+}
+
 function App() {
   const [count, setCount] = useState(0);
   const socket = useSocket();
@@ -47,10 +57,7 @@ function App() {
             <Box key={m.id} sx={{ border: 1 }}>
               <span class="name">{m.name}</span>
               { }
-              {new Date(m.sendTime).getMonth() + 1}月
-              {new Date(m.sendTime).getDate()}日
-              {new Date(m.sendTime).getHours()}:
-              {new Date(m.sendTime).getMinutes() < 10 ? ("0" + new Date(m.sendTime).getMinutes().toString()) : (new Date(m.sendTime).getMinutes())}
+              <ShowDate date={new Date(m.sendTime)} />
               {m.tags.map((t) => (
                 <span class="tag" key={t}>#{t}</span>
               ))}
