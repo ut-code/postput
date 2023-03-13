@@ -71,6 +71,7 @@ router.post(
   })
 );
 router.get("/login/success", (req, res) => {
+  console.log("success");
   res.send("success");
 });
 router.get("/login/failure", (req, res) => {
@@ -79,14 +80,13 @@ router.get("/login/failure", (req, res) => {
 
 passport.serializeUser((user, cb) => {
   process.nextTick(() => {
-    cb(null, user.id);
+    cb(null, {id: user.id, username: user.username});
   });
 });
 
 passport.deserializeUser((user, cb) => {
   process.nextTick(() => {
-    console.log(user)
-    return cb(null, {username: "hoge"});
+    return cb(null, user);
   });
 });
 
