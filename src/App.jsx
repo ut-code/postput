@@ -37,11 +37,12 @@ function TagEdit(props) {
       <Grid item>タグ:</Grid>
       {tags.map((t) => (
         <Grid item>
-          <a href="#" onClick={() => (
-            setTags(tags.filter(
-              (eachTag) => (eachTag !== t)
-            ))
-          )}><Tag tagname={t}></Tag></a>
+          <a
+            href="#"
+            onClick={() => setTags(tags.filter((eachTag) => eachTag !== t))}
+          >
+            <Tag tagname={t}></Tag>
+          </a>
         </Grid>
       ))}
       <Grid item>
@@ -119,120 +120,220 @@ function Name(props) {
 
 function Message(props) {
   const { text } = props;
-  return (<>
-    <br />
-    <p class="message">{text}</p>
-  </>)
+  return (
+    <>
+      <br />
+      <p class="message">{text}</p>
+    </>
+  );
 }
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [loginState, setLoginState] = useState(false);
   const socket = useSocket();
 
-  // 入力欄に入力中のテキストとタグ
-  const [text, setText] = useState("");
-  const [tags, setTags] = useState([]);
-  const [currentTags, setCurrentTags] = useState([]);
+  if (!loginState) {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    return (<>
+      <TextField value={username} label="username" onChange={(e) => {setUsername(e.target.value);}} />
+      <TextField value={password} label="password" onChange={(e) => {setPassword(e.target.value);}} />
+      <Button onClick={async () => {
+        const res = await (await fetch("http://localhost:3000/login/password", {
+          method: "post",
+          headers: {"content-type": "application/json"},
+          body: JSON.stringify({username: username, password: password}),
+        })).text();
+        if(res === "success"){
+          setLoginState(true);
+        }
+      }}>ログイン</Button>
+    </>);
+  } else {
+    // 入力欄に入力中のテキストとタグ
+    const [text, setText] = useState("");
+    const [tags, setTags] = useState([]);
+    const [currentTags, setCurrentTags] = useState([]);
 
-
-  const headerHeight = 60;
-  const footerHeight = 120;
-  return (
-    <>
-      <link rel="stylesheet" href="../style.css"></link>
-      <Box sx={{position: "absolute", top: 0, left: 0, width: "30%", height: "100%", background: "skyblue"}}>
-        <Box sx={{position: "absolute", top: "1%", left: "10%", width: "80%", height: "10%", background: "yellowgreen"}}>タグを検索
-          <select>
-          {socket.tags.map((t) => (
-            <option><Tag tagname={t.name}></Tag></option>
-          ))}
-          </select>
-        </Box>
-        <Box sx={{position: "absolute", top: "15%", left: "10%", width: "80%", height: "30%", background: "yellowgreen"}}>
-          <p>#固定タグ</p>
-          <Tag tagname="aaa"></Tag><br/>
-          <Tag tagname="bbb"></Tag><br/>
-          <Tag tagname="ccc"></Tag>
-        </Box>
-        <Box sx={{position: "absolute", top: "50%", left: "10%", width: "80%", height: "25%", background: "yellowgreen"}}>
-          <p>保留メッセージ</p>
-          <p>○件のメッセージが保留されています<button>一覧を見る</button></p>
-        </Box>
-        <Box sx={{position: "absolute", top: "80%", left: "10%", width: "80%", height: "15%", background: "yellowgreen"}}>
-          <p>#最近更新されたタグ</p>
-          {socket.recentTags.map((t) => (
-            <a href="#" onClick={() => {
-              if (currentTags.indexOf(t.name) === -1) {
-              setCurrentTags(currentTags.concat([t.name]));
-              }
-            }}><Tag tagname={t.name}></Tag><br/></a>
-          ))}
-          
-        </Box>
-
-      </Box>
-      <Box sx={{position: "absolute", top: 0, right: 0, width: "70%", height: "100%"}}>
+    const headerHeight = 60;
+    const footerHeight = 120;
+    return (
+      <>
+        <link rel="stylesheet" href="../style.css"></link>
         <Box
           sx={{
             position: "absolute",
             top: 0,
             left: 0,
-            width: "100%",
-            height: headerHeight,
-            background: "yellow",
+            width: "30%",
+            height: "100%",
+            background: "skyblue",
           }}
         >
-          メッセージ一覧:
-        <p>今は{
-          currentTags.map((t)=>
-          <Tag tagname={t}></Tag>
-          )}を表示しています</p>
-        </Box>
-        <Box sx={{ overflow: "auto", position: "absolute", top: headerHeight, bottom: footerHeight, left: 0, width: "100%", }}>
-          <Stack spacing={1}>
-            {socket.messages.filter(
-
-              (m) => {
-                //m.tags...メッセージにあるタグ
-                let numberOfFoundTag = 0
-                for (const tag of m.tags) {
-                  if (currentTags.indexOf(tag) != -1)
-                  numberOfFoundTag++;
-                  
-                }
-                return numberOfFoundTag > 0
-              }
-
-            ).map((m) => (
-              <Box key={m.id} sx={{ border: 1 }}>
-                <Name name={m.name}/>
-                <ShowDate date={new Date(m.sendTime)} />
-                {m.tags.map((t) => (
-                  <Tag tagname={t}/>
-                ))}              
-                <Message text={m.text}/>
-              </Box>
-            ))}
-          </Stack>
-        </Box>
-        <Box sx={{ position: "absolute", left: 0, bottom: 0, width: "100%", height: footerHeight, }}>
-          <TagEdit tags={tags} setTags={setTags} />
-          <SendMessage
-            text={text}
-            setText={setText}
-            send={() => {
-              socket.send({
-                name: "名無し", //送信者
-                text: text, //内容
-                tags: tags, //タグ
-              });
-              setText("");
+          <Box
+            sx={{
+              position: "absolute",
+              top: "1%",
+              left: "10%",
+              width: "80%",
+              height: "10%",
+              background: "yellowgreen",
             }}
-          />
+          >
+            タグを検索
+            <select>
+              {socket.tags.map((t) => (
+                <option>
+                  <Tag tagname={t.name}></Tag>
+                </option>
+              ))}
+            </select>
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "15%",
+              left: "10%",
+              width: "80%",
+              height: "30%",
+              background: "yellowgreen",
+            }}
+          >
+            <p>#固定タグ</p>
+            <Tag tagname="aaa"></Tag>
+            <br />
+            <Tag tagname="bbb"></Tag>
+            <br />
+            <Tag tagname="ccc"></Tag>
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "10%",
+              width: "80%",
+              height: "25%",
+              background: "yellowgreen",
+            }}
+          >
+            <p>保留メッセージ</p>
+            <p>
+              ○件のメッセージが保留されています<button>一覧を見る</button>
+            </p>
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "80%",
+              left: "10%",
+              width: "80%",
+              height: "15%",
+              background: "yellowgreen",
+            }}
+          >
+            <p>#最近更新されたタグ</p>
+            {socket.recentTags.map((t) => (
+              <a
+                href="#"
+                onClick={() => {
+                  if (currentTags.indexOf(t.name) === -1) {
+                    setCurrentTags(currentTags.concat([t.name]));
+                  }
+                }}
+              >
+                <Tag tagname={t.name}></Tag>
+                <br />
+              </a>
+            ))}
+          </Box>
         </Box>
-      </Box>
-    </>
-  );
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "70%",
+            height: "100%",
+          }}
+        >
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: headerHeight,
+              background: "yellow",
+            }}
+          >
+            メッセージ一覧:
+            <p>
+              今は
+              {currentTags.map((t) => (
+                <Tag tagname={t}></Tag>
+              ))}
+              を表示しています
+            </p>
+          </Box>
+          <Box
+            sx={{
+              overflow: "auto",
+              position: "absolute",
+              top: headerHeight,
+              bottom: footerHeight,
+              left: 0,
+              width: "100%",
+            }}
+          >
+            <Stack spacing={1}>
+              {socket.messages
+                .filter((m) => {
+                  //m.tags...メッセージにあるタグ
+                  let numberOfFoundTag = 0;
+                  for (const tag of m.tags) {
+                    if (currentTags.indexOf(tag) != -1) numberOfFoundTag++;
+                  }
+                  return numberOfFoundTag > 0;
+                })
+                .map((m) => (
+                  <Box key={m.id} sx={{ border: 1 }}>
+                    <Name name={m.name} />
+                    <ShowDate date={new Date(m.sendTime)} />
+                    {m.tags.map((t) => (
+                      <Tag tagname={t} />
+                    ))}
+                    <Message text={m.text} />
+                  </Box>
+                ))}
+            </Stack>
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              left: 0,
+              bottom: 0,
+              width: "100%",
+              height: footerHeight,
+            }}
+          >
+            <TagEdit tags={tags} setTags={setTags} />
+            <SendMessage
+              text={text}
+              setText={setText}
+              send={() => {
+                socket.send({
+                  name: "名無し", //送信者
+                  text: text, //内容
+                  tags: tags, //タグ
+                });
+                setText("");
+              }}
+            />
+          </Box>
+        </Box>
+      </>
+    );
+  }
 }
 
 export default App;

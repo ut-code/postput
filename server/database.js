@@ -1,6 +1,31 @@
 import { PrismaClient } from "@prisma/client";
 const client = new PrismaClient();
 
+export const getUser = async (name) => {
+  try {
+    return (await client.user.findUnique({
+      where: {
+        name: name,
+      }
+    }));
+  } catch(e) {
+    console.error(e.message);
+    return null;
+  }
+};
+export const addUser = async (name, salt, hashedPassword) => {
+  try{
+    await client.user.create({
+      data: {
+        name: name,
+        salt: salt,
+        hashedPassword: hashedPassword,
+      }
+    });
+  } catch(e){
+    console.error(e.message);
+  }
+};
 export const getTagAll = async (onError) => {
   try {
     const tags = await client.tag.findMany({});
