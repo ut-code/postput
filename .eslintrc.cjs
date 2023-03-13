@@ -20,5 +20,6 @@ module.exports = {
   rules: {
     "quotes": "off",
     "react/react-in-jsx-scope": "off",
+    "lines-between-class-members": "off",
   },
 };
