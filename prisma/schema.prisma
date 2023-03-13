@@ -35,7 +35,7 @@ model TagOnMessage {
 
 model User {
   id Int @id @default(autoincrement())
-  name String @unique
+  username String @unique
   salt Bytes
   hashedPassword Bytes
 }

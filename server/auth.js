@@ -34,11 +34,7 @@ passport.use(
           //   if (err) { return next(err); }
           //   res.redirect('/');
           // });
-          console.log(row);
-          return cb(null, {
-            id: row.id,
-            name: row.name,
-          });
+          return cb(null, row);
         }
       );
     } else {
@@ -60,10 +56,7 @@ passport.use(
             });
           }
           console.log("login ok");
-          return cb(null, {
-            id: row.id,
-            name: row.name,
-          });
+          return cb(null, row);
         }
       );
     }
@@ -86,13 +79,14 @@ router.get("/login/failure", (req, res) => {
 
 passport.serializeUser((user, cb) => {
   process.nextTick(() => {
-    cb(null, { id: user.id, username: user.username });
+    cb(null, user.id);
   });
 });
 
 passport.deserializeUser((user, cb) => {
   process.nextTick(() => {
-    return cb(null, user);
+    console.log(user)
+    return cb(null, {username: "hoge"});
   });
 });
 

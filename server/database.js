@@ -3,26 +3,26 @@ const client = new PrismaClient();
 
 export const getUser = async (name) => {
   try {
-    return (await client.user.findUnique({
+    return await client.user.findUnique({
       where: {
-        name: name,
-      }
-    }));
-  } catch(e) {
+        username: name,
+      },
+    });
+  } catch (e) {
     console.error(e.message);
     return null;
   }
 };
 export const addUser = async (name, salt, hashedPassword) => {
-  try{
-    await client.user.create({
+  try {
+    return await client.user.create({
       data: {
-        name: name,
+        username: name,
         salt: salt,
         hashedPassword: hashedPassword,
-      }
+      },
     });
-  } catch(e){
+  } catch (e) {
     console.error(e.message);
   }
 };

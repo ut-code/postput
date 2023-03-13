@@ -9,30 +9,35 @@ export const SocketProvider = (props) => {
   const [messages, setMessages] = useState([]);
   const [tags, setTags] = useState([]);
   const [recentTags, setRecentTags] = useState([]);
-  useEffect(() => {
-    const ws = new WebSocket("ws://localhost:3000/");
-    setWs(ws);
-    ws.onerror = () => {
-      const ws2 = new WebSocket("wss://postput-test-server.onrender.com/");
-      setWs(ws2);
-      ws2.onerror = () => {
-        console.log("WebSocket connection failed");
-        setWs(null);
+  const [username, setUsername] = useState("");
+  const connect = () => {
+    if (ws == null) {
+      const ws = new WebSocket("ws://localhost:3000/");
+      setWs(ws);
+      ws.onerror = () => {
+        const ws2 = new WebSocket("wss://postput-test-server.onrender.com/");
+        setWs(ws2);
+        ws2.onerror = () => {
+          console.log("WebSocket connection failed");
+          setWs(null);
+        };
       };
-    };
-  }, []);
+    }
+  };
   useEffect(() => {
     if (ws != null) {
       ws.addEventListener("message", (event) => {
         const json = JSON.parse(event.data);
         console.log(json);
-        if(json.type === "messageAll"){
+        if (json.type === "messageAll") {
           setMessages(json.messages);
-        } else if(json.type === "tagAll"){
+        } else if (json.type === "tagAll") {
           setTags(json.tags);
-        } else if(json.type === "tagRecentUpdate"){
+        } else if (json.type === "tagRecentUpdate") {
           setRecentTags(json.tags);
-        }else if(json.type === "error"){
+        } else if (json.type === "user") {
+          setUsername(json.name);
+        } else if (json.type === "error") {
           console.error("server error: " + json.message);
         }
       });
@@ -52,6 +57,8 @@ export const SocketProvider = (props) => {
         messages: messages,
         tags: tags,
         recentTags: recentTags,
+        connect: connect,
+        username: username,
       }}
     >
       {props.children}
