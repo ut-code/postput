@@ -153,6 +153,7 @@ function App() {
         onLogin={() => {
           setLoginState(true);
         }}
+        setSid={socket.setSid}
       />
     );
   }

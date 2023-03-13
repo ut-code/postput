@@ -71,11 +71,10 @@ router.post(
   })
 );
 router.get("/login/success", (req, res) => {
-  console.log("success");
-  res.send("success");
+  res.json({status: "success", sid: req.session.id});
 });
 router.get("/login/failure", (req, res) => {
-  res.send("failure");
+  res.json({status: "failure"});
 });
 
 passport.serializeUser((user, cb) => {

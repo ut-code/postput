@@ -10,12 +10,15 @@ export const SocketProvider = (props) => {
   const [tags, setTags] = useState([]);
   const [recentTags, setRecentTags] = useState([]);
   const [username, setUsername] = useState("");
-  const connect = () => {
+  const [sid, setSid] = useState("");
+  const connect = async () => {
     if (ws == null) {
-      const ws = new WebSocket("ws://localhost:3000/");
+      // const sid = await(await fetch("http://localhost:3000/login/sid", {credentials:"include"})).text();
+      const ws = new WebSocket(`ws://localhost:3000/?sid=${sid}`);
       setWs(ws);
-      ws.onerror = () => {
-        const ws2 = new WebSocket("wss://postput-test-server.onrender.com/");
+      ws.onerror = async () => {
+        // const sid = await(await fetch("https://postput-test-server.onrender.com/login/sid")).text();
+        const ws2 = new WebSocket(`wss://postput-test-server.onrender.com/?sid=${sid}`);
         setWs(ws2);
         ws2.onerror = () => {
           console.log("WebSocket connection failed");
@@ -59,6 +62,7 @@ export const SocketProvider = (props) => {
         recentTags: recentTags,
         connect: connect,
         username: username,
+        setSid: setSid,
       }}
     >
       {props.children}

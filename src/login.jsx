@@ -7,7 +7,7 @@ import Button from "@mui/material/Button";
 import SendIcon from "@mui/icons-material/Send";
 
 export default function Login(props) {
-  const { onLogin } = props;
+  const { onLogin, setSid } = props;
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const tryLogin = async () => {
@@ -16,9 +16,11 @@ export default function Login(props) {
         method: "post",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ username: username, password: password }),
+        credentials: "include",
       })
-    ).text();
-    if (res === "success") {
+    ).json();
+    if (res.status === "success") {
+      setSid(res.sid);
       onLogin();
     }
   };
