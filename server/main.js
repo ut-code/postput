@@ -43,7 +43,7 @@ app.ws("/", (ws, req) => {
     console.log(session);
     if (session && session.passport.user) {
       console.log("new client");
-      wsConnection(session.passport.user.name, ws);
+      wsConnection(session.passport.user.id, ws);
     }
 
   });

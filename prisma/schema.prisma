@@ -12,7 +12,8 @@ datasource db {
 
 model Message {
   id   Int    @id @default(autoincrement())
-  name String
+  user User @relation(fields: [userId], references: [id])
+  userId Int
   text String
   sendTime DateTime
   updateTime DateTime
@@ -38,4 +39,5 @@ model User {
   username String @unique
   salt Bytes
   hashedPassword Bytes
+  messages Message[]
 }

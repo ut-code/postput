@@ -9,6 +9,7 @@ export const SocketProvider = (props) => {
   const [messages, setMessages] = useState([]);
   const [tags, setTags] = useState([]);
   const [recentTags, setRecentTags] = useState([]);
+  const [userId, setUserId] = useState(0);
   const [username, setUsername] = useState("");
   const [sid, setSid] = useState("");
   const connect = async () => {
@@ -18,7 +19,9 @@ export const SocketProvider = (props) => {
       setWs(ws);
       ws.onerror = async () => {
         // const sid = await(await fetch("https://postput-test-server.onrender.com/login/sid")).text();
-        const ws2 = new WebSocket(`wss://postput-test-server.onrender.com/?sid=${sid}`);
+        const ws2 = new WebSocket(
+          `wss://postput-test-server.onrender.com/?sid=${sid}`
+        );
         setWs(ws2);
         ws2.onerror = () => {
           console.log("WebSocket connection failed");
@@ -39,7 +42,8 @@ export const SocketProvider = (props) => {
         } else if (json.type === "tagRecentUpdate") {
           setRecentTags(json.tags);
         } else if (json.type === "user") {
-          setUsername(json.name);
+          setUsername(json.username);
+          setUserId(json.userId);
         } else if (json.type === "error") {
           console.error("server error: " + json.message);
         }
@@ -47,11 +51,17 @@ export const SocketProvider = (props) => {
       ws.addEventListener("open", (event) => {
         ws.send(JSON.stringify({ type: "fetch" }));
       });
-      setSend((send) => (message) => {
-        ws.send(JSON.stringify({ ...message, type: "createMessage" }));
-      });
     }
   }, [ws]);
+  useEffect(() => {
+    if (ws != null) {
+      setSend((send) => (message) => {
+        ws.send(
+          JSON.stringify({ ...message, userId: userId, type: "createMessage" })
+        );
+      });
+    }
+  }, [ws, userId]);
 
   return (
     <SocketContext.Provider

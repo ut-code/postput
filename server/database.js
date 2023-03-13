@@ -13,6 +13,18 @@ export const getUser = async (name) => {
     return null;
   }
 };
+export const getUserById = async (id) => {
+  try {
+    return await client.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+  } catch (e) {
+    console.error(e.message);
+    return null;
+  }
+};
 export const addUser = async (name, salt, hashedPassword) => {
   try {
     return await client.user.create({
@@ -69,11 +81,12 @@ export const getMessageAll = async (onError) => {
             tag: true,
           },
         },
+        user: true,
       },
     });
     return messages.map((m) => ({
       id: m.id,
-      name: m.name,
+      user: { username: m.user.username },
       text: m.text,
       sendTime: m.sendTime,
       updateTime: m.updateTime,
@@ -91,7 +104,7 @@ export const createMessage = async (message, onError) => {
     const now = new Date();
     await client.message.create({
       data: {
-        name: message.name || "名無し",
+        userId: message.userId,
         text: message.text || "",
         sendTime: now,
         updateTime: now,

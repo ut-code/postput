@@ -299,7 +299,7 @@ function App() {
               })
               .map((m) => (
                 <Box key={m.id} sx={{ border: 1 }}>
-                  <Name name={m.name} />
+                  <Name name={m.user.username} />
                   <ShowDate date={new Date(m.sendTime)} />
                   {m.tags.map((t) => (
                     <Tag tagname={t} />
@@ -324,7 +324,6 @@ function App() {
             setText={setText}
             send={() => {
               socket.send({
-                name: "名無し", //送信者
                 text: text, //内容
                 tags: tags, //タグ
               });
