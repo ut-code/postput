@@ -33,8 +33,40 @@ export const getUserDetailById = async (id) => {
     });
     return {
       username: u.username,
-      favoriteTags: u.favoriteTags.tags,
+      favoriteTags: u.favoriteTags.map((ft) => ft.tag),
     };
+  } catch (e) {
+    console.error(e.message);
+    return null;
+  }
+};
+export const updateFavoriteTags = async (userId, favoriteTags) => {
+  try {
+    await client.favoriteTag.deleteMany({
+      where: {
+        userId: userId,
+      },
+    });
+    await Promise.all(
+      favoriteTags.map((ft) =>
+        (async () => {
+          await client.favoriteTag.create({
+            data: {
+              tag: {
+                connect: {
+                  name: ft,
+                },
+              },
+              user: {
+                connect: {
+                  id: userId,
+                },
+              },
+            },
+          });
+        })()
+      )
+    );
   } catch (e) {
     console.error(e.message);
     return null;

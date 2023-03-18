@@ -112,5 +112,13 @@ const socket = useSocket();
 	* database.js: `getTagRecentUpdate(onError);`
 * ユーザーの固定タグ
 	* App.jsx: `socket.favoriteTags` -> `[{name: "a"}, ...]`
-	* WebSocket: usernameと同じ
+	* WebSocket: `{type: "tagFavorite", favoriteTags: [...]}`
 	* database.js: userと同じ
+* 固定タグを設定
+	* App.jsx: `socket.setFavoriteTags(["a", "b", ...])`
+		* なんでfavoriteTagsの取得と仕様違うんだ
+		* ちなみにsocket.jsx内では名前被りを解決するためfavoriteTagsのセッター関数が`setFavoriteTagsLocal`になっているのもややこしい
+	* WebSocket: `{type: "setFavoriteTags", favoriteTags: [...]}`
+		* なんでこっちはsetTagFavoriteじゃないんだ
+	* database.js: `updateFavoriteTags(userId, favoriteTags);`
+		* なんでこれだけsetじゃなくてupdateなんだ

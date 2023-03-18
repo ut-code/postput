@@ -27,10 +27,16 @@ class Client {
     return tags.findIndex((t) => this.subscribedTags.indexOf(t) >= 0) >= 0;
   }
   update(data) {
-    if (data.username) {
+    if (data.username && data.userId === this.userId) {
       this.send({
         type: "user",
         username: data.username,
+      });
+    }
+    if (data.favoriteTags && data.userId === this.userId) {
+      this.send({
+        type: "tagFavorite",
+        favoriteTags: data.favoriteTags,
       });
     }
     if (data.message) {
@@ -53,15 +59,16 @@ class Client {
         tags: data.recentTags,
       });
     }
-    if (data.favoriteTags) {
-      this.send({
-        type: "tagFavorite",
-        favoriteTags: data.favoriteTags,
-      });
-    }
   }
 }
 
+function updateAllClient(data){
+  console.log("updateAllClient");
+  console.log(data);
+  for(const c of clients){
+    c.update(data);
+  }
+}
 export default async function wsConnection(userId, ws) {
   const c = new Client(userId, ws);
   clients.push(c);
@@ -76,18 +83,22 @@ export default async function wsConnection(userId, ws) {
         { ...json, userId: userId },
         onError
       );
-      for (const ce of clients) {
-        ce.update({ message: message });
-      }
+      const recentTags = await database.getTagRecentUpdate(onError);
+      updateAllClient({ message: message, recentTags: recentTags });
     } else if (json.type === "subscribe") {
       c.subscribe(json.tags);
       const messages = await database.getMessageAll(onError);
-      c.update({ messages: messages });
+      updateAllClient({ messages: messages });
+    } else if (json.type === "setFavoriteTags") {
+      await database.updateFavoriteTags(userId, json.favoriteTags);
+      const user = await database.getUserDetailById(userId);
+      updateAllClient({ userId: userId, favoriteTags: user.favoriteTags });
     } else if (json.type === "fetch") {
       const user = await database.getUserDetailById(userId);
       const messages = await database.getMessageAll(onError);
       const recentTags = await database.getTagRecentUpdate(onError);
       c.update({
+        userId: userId,
         username: user.username,
         favoriteTags: user.favoriteTags,
         messages: messages,
