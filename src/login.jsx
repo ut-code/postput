@@ -11,17 +11,32 @@ export default function Login(props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const tryLogin = async () => {
-    const res = await (
-      await fetch("http://localhost:3000/login/password", {
-        method: "post",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ username: username, password: password }),
-        credentials: "include",
-      })
-    ).json();
-    if (res.status === "success") {
-      setSid(res.sid);
-      onLogin();
+    try{
+      const res = await (
+        await fetch("http://localhost:3000/login/password", {
+          method: "post",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ username: username, password: password }),
+          credentials: "include",
+        })
+      ).json();
+      if (res.status === "success") {
+        setSid(res.sid);
+        onLogin();
+      }
+    } catch{
+      const res = await (
+        await fetch("https://postput-test-server.onrender.com/login/password", {
+          method: "post",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ username: username, password: password }),
+          credentials: "include",
+        })
+      ).json();
+      if (res.status === "success") {
+        setSid(res.sid);
+        onLogin();
+      }
     }
   };
   return (
