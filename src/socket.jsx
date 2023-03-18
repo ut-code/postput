@@ -5,9 +5,9 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = (props) => {
   const [ws, setWs] = useState(null);
-  const [send, setSend] = useState();
+  const [send, setSend] = useState(() => () => {});
+  const [subscribe, setSubscribe] = useState(() => () => {});
   const [messages, setMessages] = useState([]);
-  const [tags, setTags] = useState([]);
   const [recentTags, setRecentTags] = useState([]);
   const [favoriteTags, setFavoriteTags] = useState([]);
   const [userId, setUserId] = useState(0);
@@ -63,6 +63,9 @@ export const SocketProvider = (props) => {
           JSON.stringify({ ...message, type: "createMessage" })
         );
       });
+      setSubscribe((subscribe) => (tags) => {
+        ws.send(JSON.stringify({type: "subscribe", tags: tags}));
+      });
     }
   }, [ws, userId]);
 
@@ -71,12 +74,12 @@ export const SocketProvider = (props) => {
       value={{
         send: send,
         messages: messages,
-        tags: tags,
         recentTags: recentTags,
         connect: connect,
         username: username,
         setSid: setSid,
         favoriteTags: favoriteTags,
+        subscribe: subscribe,
       }}
     >
       {props.children}

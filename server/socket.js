@@ -79,6 +79,10 @@ export default async function wsConnection(userId, ws) {
       for (const ce of clients) {
         ce.update({ message: message });
       }
+    } else if (json.type === "subscribe") {
+      c.subscribe(json.tags);
+      const messages = await database.getMessageAll(onError);
+      c.update({ messages: messages });
     } else if (json.type === "fetch") {
       const user = await database.getUserDetailById(userId);
       const messages = await database.getMessageAll(onError);

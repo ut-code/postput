@@ -143,6 +143,14 @@ export const createMessage = async (message, onError) => {
               }
             : undefined,
       },
+      include: {
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
+        user: true,
+      },
     });
     await Promise.all(
       message.tags.map((t) =>

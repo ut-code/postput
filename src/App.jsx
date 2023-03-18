@@ -142,6 +142,9 @@ function App() {
   const [text, setText] = useState("");
   const [tags, setTags] = useState([]);
   const [currentTags, setCurrentTags] = useState([]);
+  useEffect(() => {
+    socket.subscribe(currentTags);
+  }, [currentTags]);
 
   const headerHeight = 60;
   const footerHeight = 120;
@@ -183,7 +186,7 @@ function App() {
         >
           タグを検索
           <select>
-            {socket.tags.map((t) => (
+            {socket.recentTags.map((t) => (
               <option>
                 <Tag tagname={t.name}></Tag>
               </option>
