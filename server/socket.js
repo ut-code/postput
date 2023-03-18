@@ -2,11 +2,13 @@ import * as database from "./database.js";
 
 const clients = [];
 class Client {
-  user;
+  userId;
   ws;
-  constructor(user, ws) {
-    this.user = user;
+  subscribedTags; // 現在閲覧中のタグ
+  constructor(userId, ws) {
+    this.userId = userId;
     this.ws = ws;
+    this.subscribedTags = [];
     console.log("client constructor");
   }
   send(data) {
@@ -18,31 +20,50 @@ class Client {
       message: message,
     });
   }
+  subscribe(tags) {
+    this.subscribedTags = tags;
+  }
+  isSubscribed(tags) {
+    return tags.findIndex((t) => this.subscribedTags.indexOf(t) >= 0) >= 0;
+  }
+  update(data) {
+    if (data.username) {
+      this.send({
+        type: "user",
+        username: data.username,
+      });
+    }
+    if (data.message) {
+      if (this.isSubscribed(data.message.tags)) {
+        this.send({
+          type: "messageAdd",
+          message: data.message,
+        });
+      }
+    }
+    if (data.messages) {
+      this.send({
+        type: "messageAll",
+        messages: data.messages.filter((m) => this.isSubscribed(m.tags)),
+      });
+    }
+    if (data.recentTags) {
+      this.send({
+        type: "tagRecentUpdate",
+        tags: data.recentTags,
+      });
+    }
+    if (data.favoriteTags) {
+      this.send({
+        type: "tagFavorite",
+        favoriteTags: data.favoriteTags,
+      });
+    }
+  }
 }
 
-const broadcast = async () => {
-  const messages = await database.getMessageAll(() => {});
-  const tags = await database.getTagAll(() => {});
-  const recentTags = await database.getTagRecentUpdate(() => {});
-  for (const c of clients) {
-    c.send({
-      type: "messageAll",
-      messages: messages,
-    });
-    c.send({
-      type: "tagAll",
-      tags: tags,
-    });
-    c.send({
-      type: "tagRecentUpdate",
-      tags: recentTags,
-    });
-  }
-};
-
 export default async function wsConnection(userId, ws) {
-  const user = await database.getUserById(userId);
-  const c = new Client(user, ws);
+  const c = new Client(userId, ws);
   clients.push(c);
   ws.on("message", async (msg) => {
     console.log(msg);
@@ -51,31 +72,22 @@ export default async function wsConnection(userId, ws) {
       c.onError(e);
     };
     if (json.type === "createMessage") {
-      await database.createMessage({ ...json, userId: userId }, onError);
-      await broadcast();
+      const message = await database.createMessage(
+        { ...json, userId: userId },
+        onError
+      );
+      for (const ce of clients) {
+        ce.update({ message: message });
+      }
     } else if (json.type === "fetch") {
+      const user = await database.getUserDetailById(userId);
       const messages = await database.getMessageAll(onError);
-      c.send({
-        type: "user",
-        userId: user.id,
-        username: user.username,
-        favoriteTags: user.favoriteTags.map((ft) => ({
-          name: ft.tag.name,
-        })),
-      });
-      c.send({
-        type: "messageAll",
-        messages: messages,
-      });
-      const tags = await database.getTagAll(onError);
-      c.send({
-        type: "tagAll",
-        tags: tags,
-      });
       const recentTags = await database.getTagRecentUpdate(onError);
-      c.send({
-        type: "tagRecentUpdate",
-        tags: recentTags,
+      c.update({
+        username: user.username,
+        favoriteTags: user.favoriteTags,
+        messages: messages,
+        recentTags: recentTags,
       });
     }
   });

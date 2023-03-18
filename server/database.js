@@ -1,28 +1,25 @@
 import { PrismaClient } from "@prisma/client";
 const client = new PrismaClient();
 
+// login時につかう
 export const getUser = async (name) => {
   try {
-    return await client.user.findUnique({
-      include: {
-        favoriteTags: {
-          include: {
-            tag: true,
-          },
-        },
-      },
+    const u = await client.user.findUnique({
       where: {
         username: name,
       },
     });
+    return u;
   } catch (e) {
     console.error(e.message);
     return null;
   }
 };
-export const getUserById = async (id) => {
+
+// WebSocketでつかう
+export const getUserDetailById = async (id) => {
   try {
-    return await client.user.findUnique({
+    const u = await client.user.findUnique({
       include: {
         favoriteTags: {
           include: {
@@ -34,6 +31,10 @@ export const getUserById = async (id) => {
         id: id,
       },
     });
+    return {
+      username: u.username,
+      favoriteTags: u.favoriteTags.tags,
+    };
   } catch (e) {
     console.error(e.message);
     return null;
@@ -116,7 +117,7 @@ export const getMessageAll = async (onError) => {
 export const createMessage = async (message, onError) => {
   try {
     const now = new Date();
-    await client.message.create({
+    const m = await client.message.create({
       data: {
         userId: message.userId,
         text: message.text || "",
@@ -157,6 +158,14 @@ export const createMessage = async (message, onError) => {
         })()
       )
     );
+    return {
+      id: m.id,
+      user: { username: m.user.username },
+      text: m.text,
+      sendTime: m.sendTime,
+      updateTime: m.updateTime,
+      tags: m.tags ? m.tags.map((t) => t.tag.name) : [],
+    };
   } catch (e) {
     console.error(e.message);
     onError(e.message);
