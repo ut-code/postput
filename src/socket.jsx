@@ -5,9 +5,9 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = (props) => {
   const [ws, setWs] = useState(null);
-  const [send, setSend] = useState();
+  const [send, setSend] = useState(() => () => {});
+  const [subscribe, setSubscribe] = useState(() => () => {});
   const [messages, setMessages] = useState([]);
-  const [tags, setTags] = useState([]);
   const [recentTags, setRecentTags] = useState([]);
   const [favoriteTags, setFavoriteTags] = useState([]);
   const [userId, setUserId] = useState(0);
@@ -38,13 +38,14 @@ export const SocketProvider = (props) => {
         console.log(json);
         if (json.type === "messageAll") {
           setMessages(json.messages);
-        } else if (json.type === "tagAll") {
-          setTags(json.tags);
+        } else if (json.type === "messageAdd"){
+          setMessages((messages) => (messages.concat([json.message])));
         } else if (json.type === "tagRecentUpdate") {
           setRecentTags(json.tags);
         } else if (json.type === "user") {
           setUsername(json.username);
           setUserId(json.userId);
+        } else if (json.type === "tagFavorite"){
           setFavoriteTags(json.favoriteTags);
         } else if (json.type === "error") {
           console.error("server error: " + json.message);
@@ -62,6 +63,9 @@ export const SocketProvider = (props) => {
           JSON.stringify({ ...message, type: "createMessage" })
         );
       });
+      setSubscribe((subscribe) => (tags) => {
+        ws.send(JSON.stringify({type: "subscribe", tags: tags}));
+      });
     }
   }, [ws, userId]);
 
@@ -70,12 +74,12 @@ export const SocketProvider = (props) => {
       value={{
         send: send,
         messages: messages,
-        tags: tags,
         recentTags: recentTags,
         connect: connect,
         username: username,
         setSid: setSid,
         favoriteTags: favoriteTags,
+        subscribe: subscribe,
       }}
     >
       {props.children}
