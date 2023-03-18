@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "server_dev": "nodemon server/main.js",
-    "server": "node server/main.js"
+    "server": "node server/main.js",
+    "update-db": "prisma format && prisma db push"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",

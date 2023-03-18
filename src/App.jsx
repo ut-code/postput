@@ -200,13 +200,20 @@ function App() {
             background: "yellowgreen",
           }}
         >
-          <p>あなたの名前は 「{socket.username}」</p>
           <p>#固定タグ</p>
-          <Tag tagname="aaa"></Tag>
-          <br />
-          <Tag tagname="bbb"></Tag>
-          <br />
-          <Tag tagname="ccc"></Tag>
+          {socket.favoriteTags.map((t) => (
+            <a
+              href="#"
+              onClick={() => {
+                if (currentTags.indexOf(t.name) === -1) {
+                  setCurrentTags(currentTags.concat([t.name]));
+                }
+              }}
+            >
+              <Tag tagname={t.name}></Tag>
+              <br />
+            </a>
+          ))}
         </Box>
         <Box
           sx={{

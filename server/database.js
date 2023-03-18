@@ -4,6 +4,13 @@ const client = new PrismaClient();
 export const getUser = async (name) => {
   try {
     return await client.user.findUnique({
+      include: {
+        favoriteTags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
       where: {
         username: name,
       },
@@ -16,6 +23,13 @@ export const getUser = async (name) => {
 export const getUserById = async (id) => {
   try {
     return await client.user.findUnique({
+      include: {
+        favoriteTags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
       where: {
         id: id,
       },

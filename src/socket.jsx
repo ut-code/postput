@@ -9,6 +9,7 @@ export const SocketProvider = (props) => {
   const [messages, setMessages] = useState([]);
   const [tags, setTags] = useState([]);
   const [recentTags, setRecentTags] = useState([]);
+  const [favoriteTags, setFavoriteTags] = useState([]);
   const [userId, setUserId] = useState(0);
   const [username, setUsername] = useState("");
   const [sid, setSid] = useState("");
@@ -44,6 +45,7 @@ export const SocketProvider = (props) => {
         } else if (json.type === "user") {
           setUsername(json.username);
           setUserId(json.userId);
+          setFavoriteTags(json.favoriteTags);
         } else if (json.type === "error") {
           console.error("server error: " + json.message);
         }
@@ -57,7 +59,7 @@ export const SocketProvider = (props) => {
     if (ws != null) {
       setSend((send) => (message) => {
         ws.send(
-          JSON.stringify({ ...message, userId: userId, type: "createMessage" })
+          JSON.stringify({ ...message, type: "createMessage" })
         );
       });
     }
@@ -73,6 +75,7 @@ export const SocketProvider = (props) => {
         connect: connect,
         username: username,
         setSid: setSid,
+        favoriteTags: favoriteTags,
       }}
     >
       {props.children}

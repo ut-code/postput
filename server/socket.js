@@ -47,13 +47,22 @@ export default async function wsConnection(userId, ws) {
   ws.on("message", async (msg) => {
     console.log(msg);
     const json = JSON.parse(msg);
-    const onError = (e) => {c.onError(e);}
+    const onError = (e) => {
+      c.onError(e);
+    };
     if (json.type === "createMessage") {
-      await database.createMessage(json, onError);
+      await database.createMessage({ ...json, userId: userId }, onError);
       await broadcast();
     } else if (json.type === "fetch") {
       const messages = await database.getMessageAll(onError);
-      c.send({ type: "user", userId: user.id, username: user.username });
+      c.send({
+        type: "user",
+        userId: user.id,
+        username: user.username,
+        favoriteTags: user.favoriteTags.map((ft) => ({
+          name: ft.tag.name,
+        })),
+      });
       c.send({
         type: "messageAll",
         messages: messages,
