@@ -50,8 +50,7 @@ npm run build
 でフロントエンドをビルドし、dist/ 以下に出力
 
 ## WebSocket
-### フロントエンド側から
-socket.jsxに実装されている。App.jsxからは
+フロントエンド側はsocket.jsxに実装されている。App.jsxからは
 ```js
 const socket = useSocket();
 ```
