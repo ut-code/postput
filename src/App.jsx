@@ -133,10 +133,10 @@ function App() {
   const [loginState, setLoginState] = useState(false);
   const socket = useSocket();
   useEffect(() => {
-    if(loginState){
+    if (loginState) {
       socket.connect();
     }
-  }, [loginState, socket])
+  }, [loginState, socket]);
 
   // 入力欄に入力中のテキストとタグ
   const [text, setText] = useState("");
@@ -149,7 +149,8 @@ function App() {
   const headerHeight = 60;
   const footerHeight = 120;
 
-  if (!loginState) { // まだログインしてない場合はこれだけ表示して終わり
+  if (!loginState) {
+    // まだログインしてない場合はこれだけ表示して終わり
     return (
       // ログインページは login.tsx にある
       <Login
@@ -298,25 +299,16 @@ function App() {
           }}
         >
           <Stack spacing={1}>
-            {socket.messages
-              .filter((m) => {
-                //m.tags...メッセージにあるタグ
-                let numberOfFoundTag = 0;
-                for (const tag of m.tags) {
-                  if (currentTags.indexOf(tag) != -1) numberOfFoundTag++;
-                }
-                return numberOfFoundTag > 0;
-              })
-              .map((m) => (
-                <Box key={m.id} sx={{ border: 1 }}>
-                  <Name name={m.user.username} />
-                  <ShowDate date={new Date(m.sendTime)} />
-                  {m.tags.map((t) => (
-                    <Tag tagname={t} />
-                  ))}
-                  <Message text={m.text} />
-                </Box>
-              ))}
+            {socket.messages.map((m) => (
+              <Box key={m.id} sx={{ border: 1 }}>
+                <Name name={m.user.username} />
+                <ShowDate date={new Date(m.sendTime)} />
+                {m.tags.map((t) => (
+                  <Tag tagname={t} />
+                ))}
+                <Message text={m.text} />
+              </Box>
+            ))}
           </Stack>
         </Box>
         <Box
