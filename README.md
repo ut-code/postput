@@ -112,5 +112,5 @@ const socket = useSocket();
 	* database.js: `getTagRecentUpdate(onError);`
 * ユーザーの固定タグ
 	* App.jsx: `socket.favoriteTags` -> `[{name: "a"}, ...]`
-	* WebSocket: usernameと同じ
+	* WebSocket: `{type: "tagFavorite", favoriteTags: [...]}`
 	* database.js: userと同じ

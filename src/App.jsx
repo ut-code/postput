@@ -218,6 +218,7 @@ function App() {
               <br />
             </a>
           ))}
+          <button onClick={() => {socket.setFavoriteTags(currentTags);}}>今見てる奴を固定タグに設定する(仮)</button>
         </Box>
         <Box
           sx={{
