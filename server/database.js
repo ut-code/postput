@@ -1,6 +1,57 @@
 import { PrismaClient } from "@prisma/client";
 const client = new PrismaClient();
 
+export const getUser = async (name) => {
+  try {
+    return await client.user.findUnique({
+      include: {
+        favoriteTags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+      where: {
+        username: name,
+      },
+    });
+  } catch (e) {
+    console.error(e.message);
+    return null;
+  }
+};
+export const getUserById = async (id) => {
+  try {
+    return await client.user.findUnique({
+      include: {
+        favoriteTags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+      where: {
+        id: id,
+      },
+    });
+  } catch (e) {
+    console.error(e.message);
+    return null;
+  }
+};
+export const addUser = async (name, salt, hashedPassword) => {
+  try {
+    return await client.user.create({
+      data: {
+        username: name,
+        salt: salt,
+        hashedPassword: hashedPassword,
+      },
+    });
+  } catch (e) {
+    console.error(e.message);
+  }
+};
 export const getTagAll = async (onError) => {
   try {
     const tags = await client.tag.findMany({});
@@ -44,11 +95,12 @@ export const getMessageAll = async (onError) => {
             tag: true,
           },
         },
+        user: true,
       },
     });
     return messages.map((m) => ({
       id: m.id,
-      name: m.name,
+      user: { username: m.user.username },
       text: m.text,
       sendTime: m.sendTime,
       updateTime: m.updateTime,
@@ -66,7 +118,7 @@ export const createMessage = async (message, onError) => {
     const now = new Date();
     await client.message.create({
       data: {
-        name: message.name || "名無し",
+        userId: message.userId,
         text: message.text || "",
         sendTime: now,
         updateTime: now,

@@ -11,24 +11,47 @@ datasource db {
 }
 
 model Message {
-  id   Int    @id @default(autoincrement())
-  name String
-  text String
-  sendTime DateTime
+  id         Int            @id @default(autoincrement())
+  user       User           @relation(fields: [userId], references: [id])
+  userId     Int
+  text       String
+  sendTime   DateTime
   updateTime DateTime
-  tags TagOnMessage[]
+  tags       TagOnMessage[]
 }
+
 model Tag {
-  id Int @id @default(autoincrement())
-  name String @unique
-  createTime DateTime
-  updateTime DateTime
-  messages TagOnMessage[]
+  id          Int            @id @default(autoincrement())
+  name        String         @unique
+  createTime  DateTime
+  updateTime  DateTime
+  messages    TagOnMessage[]
+  FavoriteTag FavoriteTag[]
 }
+
 model TagOnMessage {
-  message       Message     @relation(fields: [messageId], references: [id])
+  message   Message @relation(fields: [messageId], references: [id])
   messageId Int
-  tag Tag @relation(fields: [tagId], references: [id])
-  tagId Int
+  tag       Tag     @relation(fields: [tagId], references: [id])
+  tagId     Int
+
   @@id([messageId, tagId])
+}
+
+model User {
+  id             Int           @id @default(autoincrement())
+  username       String        @unique
+  salt           Bytes
+  hashedPassword Bytes
+  messages       Message[]
+  favoriteTags   FavoriteTag[]
+}
+
+model FavoriteTag {
+  tag    Tag  @relation(fields: [tagId], references: [id])
+  tagId  Int
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@id([tagId, userId])
 }
