@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import  "./Login.css";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
@@ -40,22 +41,40 @@ export default function Login(props) {
     }
   };
   return (
-    <>
-      <TextField
-        value={username}
-        label="username"
-        onChange={(e) => {
-          setUsername(e.target.value);
+    <div className="postput-login-container">
+      <h2>Login</h2>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          tryLogin();
         }}
-      />
-      <TextField
-        value={password}
-        label="password"
-        onChange={(e) => {
-          setPassword(e.target.value);
-        }}
-      />
-      <Button onClick={tryLogin}>ログイン</Button>
-    </>
+      >
+        <div className="postput-form-group">
+          <label htmlFor="username">Username:</label>
+          <input
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => {
+              setUsername(e.target.value);
+            }}
+          />
+        </div>
+        <div className="postput-form-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
+          />
+        </div>
+        <div className="button-container">
+          <button type="submit">login</button>
+        </div>
+      </form>
+    </div>
   );
 }
