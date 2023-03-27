@@ -336,6 +336,7 @@ function App() {
           }}
         >
           <Stack spacing={1}>
+          {socket.messages.length === 0 && <p>サイドバーから表示するタグを選択してください</p>}
             {socket.messages.map((m) => (
               <Box key={m.id} sx={{ border: 1 }}>
                 <Name name={m.user.username} />
