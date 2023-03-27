@@ -8,6 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import SendIcon from "@mui/icons-material/Send";
 import WatchLaterIcon from "@mui/icons-material/WatchLater";
 import Badge from "@mui/material/Badge";
+import Chip from "@mui/material/Chip";
 import { useSocket } from "./socket";
 import Login from "./login";
 
@@ -37,30 +38,32 @@ function TagEdit(props) {
     }
   };
   return (
-    <input
-      value={tagInput}
-      onChange={(e) => {
-        let value = e.target.value;
-        if (!value.startsWith("#")) {
-          value = "#" + value;
-        }
-        if (value === "#") {
-          value = "";
-        }
-        setTagInput(value);
-      }}
-      size="small"
-      placeholder="タグを追加"
-      onKeyPress={(e) => {
-        if (e.isComposing || e.keyCode === 229) {
-          return;
-        }
-        if (e.key === "Enter") {
-          addTag2();
-        }
-        return false;
-      }}
-    />
+    <>
+      <input
+        value={tagInput}
+        onChange={(e) => {
+          let value = e.target.value;
+          if (!value.startsWith("#")) {
+            value = "#" + value;
+          }
+          if (value === "#") {
+            value = "";
+          }
+          setTagInput(value);
+        }}
+        size={tagInput.length || 7}
+        placeholder="タグを追加"
+        onKeyPress={(e) => {
+          if (e.isComposing || e.keyCode === 229) {
+            return;
+          }
+          if (e.key === "Enter") {
+            addTag2();
+          }
+          return false;
+        }}
+      />
+    </>
   );
 }
 
@@ -90,11 +93,17 @@ function SendMessage(props) {
 }
 
 function Tag(props) {
-  const { tagname } = props;
+  const { tagname, onDelete, onClick } = props;
   return (
-    <>
-      <span class="tag">#{tagname}</span>
-    </>
+    <span style={{ paddingLeft: 2, paddingRight: 2 }}>
+      <Chip
+        color="error"
+        onDelete={onDelete}
+        onClick={onClick}
+        size="small"
+        label={"#" + tagname}
+      />
+    </span>
   );
 }
 
@@ -187,7 +196,7 @@ function App() {
           >
             {socket.recentTags.map((t) => (
               <option value={t.name}>
-                <Tag tagname={t.name}></Tag>
+                <Tag tagname={t.name} />
               </option>
             ))}
           </select>
@@ -202,37 +211,33 @@ function App() {
             background: "yellowgreen",
           }}
         >
-          <p>#固定タグ</p>
-          {socket.favoriteTags.map((t) => (
-            <a
-              href="#"
+          <Stack spacing={1}>
+            <div>固定タグ</div>
+            {socket.favoriteTags.map((t) => (
+              <div>
+                <Tag
+                  tagname={t.name}
+                  onDelete={() => {
+                    socket.setFavoriteTags(
+                      socket.favoriteTags.filter((tag) => tag.name !== t.name)
+                    );
+                  }}
+                  onClick={() => {
+                    if (currentTags.indexOf(t.name) === -1) {
+                      setCurrentTags(currentTags.concat([t.name]));
+                    }
+                  }}
+                />
+              </div>
+            ))}
+            <button
               onClick={() => {
-                if (currentTags.indexOf(t.name) === -1) {
-                  setCurrentTags(currentTags.concat([t.name]));
-                }
+                socket.setFavoriteTags(currentTags);
               }}
             >
-              <Tag tagname={t.name}></Tag>
-              <button
-                type="button"
-                onClick={() => {
-                  socket.setFavoriteTags(
-                    socket.favoriteTags.filter((tag) => tag.name !== t.name)
-                  );
-                }}
-              >
-                削除
-              </button>
-              <br />
-            </a>
-          ))}
-          <button
-            onClick={() => {
-              socket.setFavoriteTags(currentTags);
-            }}
-          >
-            今見てる奴を固定タグに設定する(仮)
-          </button>
+              今見てる奴を固定タグに設定する(仮)
+            </button>
+          </Stack>
         </Box>
         <Box
           sx={{
@@ -268,20 +273,21 @@ function App() {
             background: "yellowgreen",
           }}
         >
-          <p>#最近更新されたタグ</p>
-          {socket.recentTags.map((t) => (
-            <a
-              href="#"
-              onClick={() => {
-                if (currentTags.indexOf(t.name) === -1) {
-                  setCurrentTags(currentTags.concat([t.name]));
-                }
-              }}
-            >
-              <Tag tagname={t.name}></Tag>
-              <br />
-            </a>
-          ))}
+          <Stack spacing={1}>
+            <div>#最近更新されたタグ</div>
+            {socket.recentTags.map((t) => (
+              <div>
+                <Tag
+                  tagname={t.name}
+                  onClick={() => {
+                    if (currentTags.indexOf(t.name) === -1) {
+                      setCurrentTags(currentTags.concat([t.name]));
+                    }
+                  }}
+                />
+              </div>
+            ))}
+          </Stack>
         </Box>
       </Box>
       <Box
@@ -308,15 +314,12 @@ function App() {
             今は
             {currentTags.map((t) => (
               <>
-                <Tag tagname={t}></Tag>
-                <button
-                  type="button"
-                  onClick={() => {
+                <Tag
+                  tagname={t}
+                  onDelete={() => {
                     setCurrentTags(currentTags.filter((tag) => tag !== t));
                   }}
-                >
-                  削除
-                </button>
+                />
               </>
             ))}
             を表示しています
@@ -338,8 +341,17 @@ function App() {
                 <Name name={m.user.username} />
                 <ShowDate date={new Date(m.sendTime)} />
                 {m.tags.map((t) => (
-                  <><Tag tagname={t} />
-                  <button onClick={()=>{socket.updateMessage(m.id, m.tags.filter((tag) => tag !== t))}}>削除</button></>
+                  <>
+                    <Tag
+                      tagname={t}
+                      onDelete={() => {
+                        socket.updateMessage(
+                          m.id,
+                          m.tags.filter((tag) => tag !== t)
+                        );
+                      }}
+                    />
+                  </>
                 ))}
                 <TagEdit
                   tags={[]}
@@ -380,20 +392,21 @@ function App() {
         >
           <Grid container spacing={1} alignItems="baseline">
             <Grid item>タグ:</Grid>
-            {tagsToSend.map((t) => (
-              <Grid item>
-                <a
-                  href="#"
-                  onClick={() =>
+            <Grid item>
+              {tagsToSend.map((t) => (
+                <Tag
+                  tagname={t}
+                  onDelete={() =>
                     setTagsToSend(tagsToSend.filter((eachTag) => eachTag !== t))
                   }
-                >
-                  <Tag tagname={t}></Tag>
-                </a>
-              </Grid>
-            ))}
+                />
+              ))}
+            </Grid>
             <Grid item>
-              <TagEdit tags={tagsToSend} addTag={(t) => setTagsToSend(tagsToSend.concat([t]))} />
+              <TagEdit
+                tags={tagsToSend}
+                addTag={(t) => setTagsToSend(tagsToSend.concat([t]))}
+              />
             </Grid>
           </Grid>
           <SendMessage
