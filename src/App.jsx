@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Autocomplete from "@mui/material/Autocomplete";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
@@ -152,6 +153,8 @@ function App() {
     setKeepTagName(`.keep-${socket.userId}`);
   }, [setKeepTagName, socket.userId]);
 
+  const [searchTagText, setSearchTagText] = useState("");
+
   if (!loginState) {
     // まだログインしてない場合はこれだけ表示して終わり
     return (
@@ -188,18 +191,24 @@ function App() {
             background: "yellowgreen",
           }}
         >
-          タグを検索
-          <select
-            onChange={(e) => {
-              setCurrentTags(currentTags.concat([e.target.value]));
+          <Autocomplete
+            disablePortal
+            options={socket.recentTags
+              .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
+              .map((t) => t.name)}
+            renderInput={(params) => (
+              <TextField {...params} label="タグを検索" />
+            )}
+            inputValue={searchTagText}
+            onInputChange={(e, value) => setSearchTagText(value)}
+            value={null}
+            onChange={(e, value) => {
+              if (currentTags.indexOf(value) === -1) {
+                setCurrentTags(currentTags.concat([value]));
+              }
+              setSearchTagText("");
             }}
-          >
-            {socket.recentTags.map((t) => (
-              <option value={t.name}>
-                <Tag tagname={t.name} />
-              </option>
-            ))}
-          </select>
+          />
         </Box>
         <Box
           sx={{
@@ -336,7 +345,9 @@ function App() {
           }}
         >
           <Stack spacing={1}>
-          {socket.messages.length === 0 && <p>サイドバーから表示するタグを選択してください</p>}
+            {socket.messages.length === 0 && (
+              <p>サイドバーから表示するタグを選択してください</p>
+            )}
             {socket.messages.map((m) => (
               <Box key={m.id} sx={{ border: 1 }}>
                 <Name name={m.user.username} />
