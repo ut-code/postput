@@ -199,3 +199,43 @@ export const createMessage = async (message, onError) => {
     onError(e.message);
   }
 };
+export const setKeep = async (mid, keep, userId, onError) => {
+  try {
+    const now = new Date();
+    if (keep) {
+      await client.tagOnMessage.create({
+        data: {
+          message: {
+            connect: {
+              id: mid,
+            },
+          },
+          tag: {
+            connectOrCreate: {
+              where: {
+                name: `.keep-${userId}`,
+              },
+              create: {
+                name: `.keep-${userId}`,
+                createTime: now,
+                updateTime: now,
+              },
+            },
+          },
+        },
+      });
+    } else {
+      await client.tagOnMessage.deleteMany({
+        where: {
+          messageId: mid,
+          tag: {
+            name: `.keep-${userId}`,
+          },
+        },
+      });
+    }
+  } catch (e) {
+    console.error(e.message);
+    onError(e.message);
+  }
+};

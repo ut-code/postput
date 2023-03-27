@@ -4,7 +4,9 @@ import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import SendIcon from "@mui/icons-material/Send";
+import WatchLaterIcon from "@mui/icons-material/WatchLater";
 import { useSocket } from "./socket";
 import Login from "./login";
 
@@ -149,6 +151,7 @@ function App() {
   const headerHeight = 60;
   const footerHeight = 120;
 
+
   if (!loginState) {
     // まだログインしてない場合はこれだけ表示して終わり
     return (
@@ -218,7 +221,13 @@ function App() {
               <br />
             </a>
           ))}
-          <button onClick={() => {socket.setFavoriteTags(currentTags);}}>今見てる奴を固定タグに設定する(仮)</button>
+          <button
+            onClick={() => {
+              socket.setFavoriteTags(currentTags);
+            }}
+          >
+            今見てる奴を固定タグに設定する(仮)
+          </button>
         </Box>
         <Box
           sx={{
@@ -232,7 +241,8 @@ function App() {
         >
           <p>保留メッセージ</p>
           <p>
-            {socket.keepNum}件のメッセージが保留されています<button>一覧を見る</button>
+            {socket.keepNum}件のメッセージが保留されています
+            <button>一覧を見る</button>
           </p>
         </Box>
         <Box
@@ -307,6 +317,22 @@ function App() {
                 {m.tags.map((t) => (
                   <Tag tagname={t} />
                 ))}
+                <IconButton
+                  size="small"
+                  color={
+                    m.tags.indexOf(`.keep-${socket.userId}`) >= 0
+                      ? "primary"
+                      : ""
+                  }
+                  onClick={() => socket.setKeep(
+                    m.id,
+                    !(
+                    m.tags.indexOf(`.keep-${socket.userId}`) >= 0
+                    )
+                  )}
+                >
+                  <WatchLaterIcon fontSize="small" />
+                </IconButton>
                 <Message text={m.text} />
               </Box>
             ))}
