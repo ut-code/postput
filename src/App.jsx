@@ -40,32 +40,31 @@ function TagEdit(props) {
     }
   };
   return (
-    <>
-      <input
-        value={tagInput}
-        onChange={(e) => {
-          let value = e.target.value;
-          if (!value.startsWith("#")) {
-            value = "#" + value;
-          }
-          if (value === "#") {
-            value = "";
-          }
-          setTagInput(value);
-        }}
-        size={tagInput.length || 7}
-        placeholder="タグを追加"
-        onKeyPress={(e) => {
-          if (e.isComposing || e.keyCode === 229) {
-            return;
-          }
-          if (e.key === "Enter") {
-            addTag2();
-          }
-          return false;
-        }}
-      />
-    </>
+    <input
+      value={tagInput}
+      onChange={(e) => {
+        let value = e.target.value;
+        if (!value.startsWith("#")) {
+          value = "#" + value;
+        }
+        if (value === "#") {
+          value = "";
+        }
+        setTagInput(value);
+      }}
+      size={tagInput.length || 7}
+      placeholder="タグを追加"
+      onKeyPress={(e) => {
+        if (e.isComposing || e.keyCode === 229) {
+          return;
+        }
+        if (e.key === "Enter") {
+          addTag2();
+        }
+        return false;
+      }}
+      onBlur={addTag2}
+    />
   );
 }
 
@@ -289,32 +288,32 @@ function App() {
       >
         <Box
           sx={{
-            flexBasis:"auto",
-            flexGrow:0,
-            flexShrink:0,
+            flexBasis: "auto",
+            flexGrow: 0,
+            flexShrink: 0,
           }}
         >
-        <Paper elevation={3} sx={{m:1}}>
-          <Grid container alignItems="center" sx={{height:"100%", p:1}}>
-            {currentTags.map((t) => (
-              <Grid item>
-                <LargeTag
-                  tagname={t}
-                  onDelete={() => {
-                    setCurrentTags(currentTags.filter((tag) => tag !== t));
-                  }}
-                />
-              </Grid>
-            ))}
-          </Grid>
+          <Paper elevation={3} sx={{ m: 1 }}>
+            <Grid container alignItems="center" sx={{ height: "100%", p: 1 }}>
+              {currentTags.map((t) => (
+                <Grid item>
+                  <LargeTag
+                    tagname={t}
+                    onDelete={() => {
+                      setCurrentTags(currentTags.filter((tag) => tag !== t));
+                    }}
+                  />
+                </Grid>
+              ))}
+            </Grid>
           </Paper>
         </Box>
         <Box
           sx={{
-            flexBasis:"auto",
-            flexGrow:1,
-            flexShrink:1,
-            overflow:"auto",
+            flexBasis: "auto",
+            flexGrow: 1,
+            flexShrink: 1,
+            overflow: "auto",
           }}
         >
           <Stack spacing={1}>
@@ -368,42 +367,44 @@ function App() {
         </Box>
         <Box
           sx={{
-            flexBasis:"auto",
-            flexGrow:0,
-            flexShrink:0,
+            flexBasis: "auto",
+            flexGrow: 0,
+            flexShrink: 0,
           }}
         >
-        <Paper elevation={3} sx={{m:1}}>
-          <Grid container spacing={1} alignItems="baseline">
-            <Grid item>タグ:</Grid>
-            <Grid item>
-              {tagsToSend.map((t) => (
-                <Tag
-                  tagname={t}
-                  onDelete={() =>
-                    setTagsToSend(tagsToSend.filter((eachTag) => eachTag !== t))
-                  }
+          <Paper elevation={3} sx={{ m: 1 }}>
+            <Grid container spacing={1} alignItems="baseline">
+              <Grid item>タグ:</Grid>
+              <Grid item>
+                {tagsToSend.map((t) => (
+                  <Tag
+                    tagname={t}
+                    onDelete={() =>
+                      setTagsToSend(
+                        tagsToSend.filter((eachTag) => eachTag !== t)
+                      )
+                    }
+                  />
+                ))}
+              </Grid>
+              <Grid item>
+                <TagEdit
+                  tags={tagsToSend}
+                  addTag={(t) => setTagsToSend(tagsToSend.concat([t]))}
                 />
-              ))}
+              </Grid>
             </Grid>
-            <Grid item>
-              <TagEdit
-                tags={tagsToSend}
-                addTag={(t) => setTagsToSend(tagsToSend.concat([t]))}
-              />
-            </Grid>
-          </Grid>
-          <SendMessage
-            text={textToSend}
-            setText={setTextToSend}
-            send={() => {
-              socket.send({
-                text: textToSend, // 内容
-                tags: tagsToSend, // タグ
-              });
-              setTextToSend("");
-            }}
-          />
+            <SendMessage
+              text={textToSend}
+              setText={setTextToSend}
+              send={() => {
+                socket.send({
+                  text: textToSend, // 内容
+                  tags: tagsToSend, // タグ
+                });
+                setTextToSend("");
+              }}
+            />
           </Paper>
         </Box>
       </Box>
