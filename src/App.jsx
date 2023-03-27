@@ -4,7 +4,10 @@ import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import SendIcon from "@mui/icons-material/Send";
+import WatchLaterIcon from "@mui/icons-material/WatchLater";
+import Badge from "@mui/material/Badge";
 import { useSocket } from "./socket";
 import Login from "./login";
 
@@ -149,6 +152,11 @@ function App() {
   const headerHeight = 60;
   const footerHeight = 120;
 
+  const [keepTagName, setKeepTagName] = useState(".keep-");
+  useEffect(() => {
+    setKeepTagName(`.keep-${socket.userId}`)
+  }, [setKeepTagName, socket.userId]);
+
   if (!loginState) {
     // まだログインしてない場合はこれだけ表示して終わり
     return (
@@ -219,7 +227,13 @@ function App() {
               <br />
             </a>
           ))}
-          <button onClick={() => {socket.setFavoriteTags(currentTags);}}>今見てる奴を固定タグに設定する(仮)</button>
+          <button
+            onClick={() => {
+              socket.setFavoriteTags(currentTags);
+            }}
+          >
+            今見てる奴を固定タグに設定する(仮)
+          </button>
         </Box>
         <Box
           sx={{
@@ -227,22 +241,31 @@ function App() {
             top: "50%",
             left: "10%",
             width: "80%",
-            height: "25%",
+            height: "10%",
             background: "yellowgreen",
           }}
         >
-          <p>保留メッセージ</p>
           <p>
-            ○件のメッセージが保留されています<button>一覧を見る</button>
+            <a
+              href="#"
+              onClick={() => {
+                  setCurrentTags([keepTagName]);
+              }}
+            >
+              保留メッセージ
+              <Badge badgeContent={socket.keepNum} color="primary">
+                <WatchLaterIcon color="action" />
+              </Badge>
+            </a>
           </p>
         </Box>
         <Box
           sx={{
             position: "absolute",
-            top: "80%",
+            top: "65%",
             left: "10%",
             width: "80%",
-            height: "15%",
+            height: "30%",
             background: "yellowgreen",
           }}
         >
@@ -308,6 +331,22 @@ function App() {
                 {m.tags.map((t) => (
                   <Tag tagname={t} />
                 ))}
+                <IconButton
+                  size="small"
+                  color={
+                    m.tags.indexOf(keepTagName) >= 0
+                      ? "primary"
+                      : ""
+                  }
+                  onClick={() =>
+                    socket.setKeep(
+                      m.id,
+                      !(m.tags.indexOf(keepTagName) >= 0)
+                    )
+                  }
+                >
+                  <WatchLaterIcon fontSize="small" />
+                </IconButton>
                 <Message text={m.text} />
               </Box>
             ))}

@@ -85,21 +85,7 @@ export const addUser = async (name, salt, hashedPassword) => {
     console.error(e.message);
   }
 };
-export const getTagAll = async (onError) => {
-  try {
-    const tags = await client.tag.findMany({});
-    return tags.map((m) => ({
-      id: m.id,
-      name: m.name,
-      createTime: m.createTime,
-      updateTime: m.updateTime,
-    }));
-  } catch (e) {
-    console.error(e.message);
-    onError(e.message);
-  }
-  return [];
-};
+
 export const getTagRecentUpdate = async (onError) => {
   try {
     const tags = await client.tag.findMany({
@@ -107,12 +93,14 @@ export const getTagRecentUpdate = async (onError) => {
         updateTime: "desc",
       },
     });
-    return tags.map((m) => ({
-      id: m.id,
-      name: m.name,
-      createTime: m.createTime,
-      updateTime: m.updateTime,
-    }));
+    return tags
+      .map((m) => ({
+        id: m.id,
+        name: m.name,
+        createTime: m.createTime,
+        updateTime: m.updateTime,
+      }))
+      .filter((m) => !m.name.startsWith(".")); // .ではじまるタグは非表示
   } catch (e) {
     console.error(e.message);
     onError(e.message);
@@ -206,6 +194,46 @@ export const createMessage = async (message, onError) => {
       updateTime: m.updateTime,
       tags: m.tags ? m.tags.map((t) => t.tag.name) : [],
     };
+  } catch (e) {
+    console.error(e.message);
+    onError(e.message);
+  }
+};
+export const setKeep = async (mid, keep, userId, onError) => {
+  try {
+    const now = new Date();
+    if (keep) {
+      await client.tagOnMessage.create({
+        data: {
+          message: {
+            connect: {
+              id: mid,
+            },
+          },
+          tag: {
+            connectOrCreate: {
+              where: {
+                name: `.keep-${userId}`,
+              },
+              create: {
+                name: `.keep-${userId}`,
+                createTime: now,
+                updateTime: now,
+              },
+            },
+          },
+        },
+      });
+    } else {
+      await client.tagOnMessage.deleteMany({
+        where: {
+          messageId: mid,
+          tag: {
+            name: `.keep-${userId}`,
+          },
+        },
+      });
+    }
   } catch (e) {
     console.error(e.message);
     onError(e.message);

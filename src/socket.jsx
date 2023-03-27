@@ -13,6 +13,8 @@ export const SocketProvider = (props) => {
   const [favoriteTags, setFavoriteTagsLocal] = useState([]);
   const [userId, setUserId] = useState(0);
   const [username, setUsername] = useState("");
+  const [keepNum, setKeepNum] = useState(0);
+  const [setKeep, setSetKeep] = useState(() => () => {});
   const [sid, setSid] = useState("");
   const connect = async () => {
     if (ws == null) {
@@ -48,6 +50,8 @@ export const SocketProvider = (props) => {
           setUserId(json.userId);
         } else if (json.type === "tagFavorite"){
           setFavoriteTagsLocal(json.favoriteTags);
+        } else if (json.type === "keepNum"){
+          setKeepNum(json.keepNum);
         } else if (json.type === "error") {
           console.error("server error: " + json.message);
         }
@@ -60,31 +64,35 @@ export const SocketProvider = (props) => {
   useEffect(() => {
     if (ws != null) {
       setSend((send) => (message) => {
-        ws.send(
-          JSON.stringify({ ...message, type: "createMessage" })
-        );
+        ws.send(JSON.stringify({ ...message, type: "createMessage" }));
       });
       setSubscribe((subscribe) => (tags) => {
-        ws.send(JSON.stringify({type: "subscribe", tags: tags}));
+        ws.send(JSON.stringify({ type: "subscribe", tags: tags }));
       });
       setSetFavoriteTags((setFavoriteTags) => (tags) => {
-        ws.send(JSON.stringify({type: "setFavoriteTags", favoriteTags:tags}));
-      })
+        ws.send(JSON.stringify({type: "setFavoriteTags", favoriteTags:tags.map((t) => (typeof t === "string" ? t : t.name))}));
+      });
+      setSetKeep((setKeep) => (mid, keep) => {
+        ws.send(JSON.stringify({ type: "setKeep", mid: mid, keep: keep }));
+      });
     }
   }, [ws, userId]);
 
   return (
     <SocketContext.Provider
       value={{
-        send: send,
-        messages: messages,
-        recentTags: recentTags,
-        connect: connect,
-        username: username,
-        setSid: setSid,
-        favoriteTags: favoriteTags,
-        subscribe: subscribe,
-        setFavoriteTags: setFavoriteTags,
+        send,
+        messages,
+        recentTags,
+        connect,
+        userId,
+        username,
+        setSid,
+        favoriteTags,
+        subscribe,
+        setFavoriteTags,
+        keepNum,
+        setKeep,
       }}
     >
       {props.children}
