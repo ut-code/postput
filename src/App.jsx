@@ -24,58 +24,43 @@ function ShowDate(props) {
 }
 
 function TagEdit(props) {
-  const { tags, setTags } = props;
+  const { tags, addTag } = props;
   const [tagInput, setTagInput] = useState("");
-  const addTag = () => {
+  const addTag2 = () => {
     if (tagInput !== "" && tagInput !== "#") {
       // 先頭の#は不要
       const tagInputWithoutSharp = tagInput.slice(1);
       if (tags.indexOf(tagInputWithoutSharp) === -1) {
-        setTags(tags.concat([tagInputWithoutSharp]));
+        addTag(tagInputWithoutSharp);
         setTagInput("");
       }
     }
   };
   return (
-    <Grid container spacing={1} alignItems="baseline">
-      <Grid item>タグ:</Grid>
-      {tags.map((t) => (
-        <Grid item>
-          <a
-            href="#"
-            onClick={() => setTags(tags.filter((eachTag) => eachTag !== t))}
-          >
-            <Tag tagname={t}></Tag>
-          </a>
-        </Grid>
-      ))}
-      <Grid item>
-        <input
-          value={tagInput}
-          onChange={(e) => {
-            let value = e.target.value;
-            if (!value.startsWith("#")) {
-              value = "#" + value;
-            }
-            if (value === "#") {
-              value = "";
-            }
-            setTagInput(value);
-          }}
-          size="small"
-          placeholder="タグを追加"
-          onKeyPress={(e) => {
-            if (e.isComposing || e.keyCode === 229) {
-              return;
-            }
-            if (e.key === "Enter") {
-              addTag();
-            }
-            return false;
-          }}
-        />
-      </Grid>
-    </Grid>
+    <input
+      value={tagInput}
+      onChange={(e) => {
+        let value = e.target.value;
+        if (!value.startsWith("#")) {
+          value = "#" + value;
+        }
+        if (value === "#") {
+          value = "";
+        }
+        setTagInput(value);
+      }}
+      size="small"
+      placeholder="タグを追加"
+      onKeyPress={(e) => {
+        if (e.isComposing || e.keyCode === 229) {
+          return;
+        }
+        if (e.key === "Enter") {
+          addTag2();
+        }
+        return false;
+      }}
+    />
   );
 }
 
@@ -142,8 +127,8 @@ function App() {
   }, [loginState, socket]);
 
   // 入力欄に入力中のテキストとタグ
-  const [text, setText] = useState("");
-  const [tags, setTags] = useState([]);
+  const [textToSend, setTextToSend] = useState("");
+  const [tagsToSend, setTagsToSend] = useState([]);
   const [currentTags, setCurrentTags] = useState([]);
   useEffect(() => {
     socket.subscribe(currentTags);
@@ -355,6 +340,12 @@ function App() {
                   <><Tag tagname={t} />
                   <button onClick={()=>{socket.updateMessage(m.id, m.tags.filter((tag) => tag !== t))}}>削除</button></>
                 ))}
+                <TagEdit
+                  tags={[]}
+                  addTag={(tag) => {
+                    socket.updateMessage(m.id, m.tags.concat([tag]));
+                  }}
+                />
                 <IconButton
                   size="small"
                   color={m.tags.indexOf(keepTagName) >= 0 ? "primary" : ""}
@@ -386,16 +377,33 @@ function App() {
             height: footerHeight,
           }}
         >
-          <TagEdit tags={tags} setTags={setTags} />
+          <Grid container spacing={1} alignItems="baseline">
+            <Grid item>タグ:</Grid>
+            {tagsToSend.map((t) => (
+              <Grid item>
+                <a
+                  href="#"
+                  onClick={() =>
+                    setTagsToSend(tagsToSend.filter((eachTag) => eachTag !== t))
+                  }
+                >
+                  <Tag tagname={t}></Tag>
+                </a>
+              </Grid>
+            ))}
+            <Grid item>
+              <TagEdit tags={tagsToSend} addTag={(t) => setTagsToSend(tagsToSend.concat([t]))} />
+            </Grid>
+          </Grid>
           <SendMessage
-            text={text}
-            setText={setText}
+            text={textToSend}
+            setText={setTextToSend}
             send={() => {
               socket.send({
-                text: text, //内容
-                tags: tags, //タグ
+                text: textToSend, // 内容
+                tags: tagsToSend, // タグ
               });
-              setText("");
+              setTextToSend("");
             }}
           />
         </Box>
