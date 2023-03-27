@@ -215,6 +215,7 @@ function App() {
               }}
             >
               <Tag tagname={t.name}></Tag>
+              <button type="button" onClick={()=>{socket.setFavoriteTags(socket.favoriteTags.filter((tag)=>tag.name !== t.name))}}>削除</button>
               <br />
             </a>
           ))}
