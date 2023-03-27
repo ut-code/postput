@@ -68,17 +68,16 @@ class Client {
         type: "messageAll",
         messages: data.messages.filter((m) => this.isSubscribed(m.tags)),
       });
+      this.send({
+        type: "keepNum",
+        keepNum: data.messages.filter((m) => m.tags.indexOf(`.keep-${this.userId}`) >= 0)
+          .length,
+      });
     }
     if (data.recentTags) {
       this.send({
         type: "tagRecentUpdate",
         tags: data.recentTags,
-      });
-    }
-    if (data.keepNum) {
-      this.send({
-        type: "keepNum",
-        keepNum: data.keepNum,
       });
     }
   }
@@ -112,8 +111,6 @@ export default async function wsConnection(userId, ws) {
       const messages = await database.getMessageAll(onError);
       updateAllClient({
         messages: messages,
-        keepNum: messages.filter((m) => m.tags.indexOf(`.keep-${userId}`) >= 0)
-          .length,
       });
     } else if (json.type === "subscribe") {
       c.subscribe(json.tags);
@@ -133,8 +130,6 @@ export default async function wsConnection(userId, ws) {
         favoriteTags: user.favoriteTags,
         messages: messages,
         recentTags: recentTags,
-        keepNum: messages.filter((m) => m.tags.indexOf(`.keep-${userId}`) >= 0)
-          .length,
       });
     }
   });
