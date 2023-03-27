@@ -308,7 +308,10 @@ function App() {
           <p>
             今は
             {currentTags.map((t) => (
+              <>
               <Tag tagname={t}></Tag>
+              <button type="button" onClick={() => {setCurrentTags(currentTags.filter((tag)=>tag !== t))}}>削除</button>
+              </>
             ))}
             を表示しています
           </p>
