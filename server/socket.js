@@ -20,8 +20,23 @@ class Client {
       message: message,
     });
   }
+  isValidTag(tagName) {
+    if (!tagName.startsWith(".")) {
+      // 通常のタグ
+      return true;
+    }
+    if (tagName === `.keep-${this.userId}`) {
+      // このユーザーの保留タグ
+      return true;
+    }
+    if (tagName.startsWith(".reply-")) {
+      // 返信タグ
+      return true;
+    }
+    return false;
+  }
   subscribe(tags) {
-    this.subscribedTags = tags;
+    this.subscribedTags = tags.filter((t) => this.isValidTag(t));
   }
   isSubscribed(tags) {
     return tags.findIndex((t) => this.subscribedTags.indexOf(t) >= 0) >= 0;
@@ -31,6 +46,7 @@ class Client {
       this.send({
         type: "user",
         username: data.username,
+        userId: data.userId,
       });
     }
     if (data.favoriteTags && data.userId === this.userId) {
@@ -52,6 +68,11 @@ class Client {
         type: "messageAll",
         messages: data.messages.filter((m) => this.isSubscribed(m.tags)),
       });
+      this.send({
+        type: "keepNum",
+        keepNum: data.messages.filter((m) => m.tags.indexOf(`.keep-${this.userId}`) >= 0)
+          .length,
+      });
     }
     if (data.recentTags) {
       this.send({
@@ -62,10 +83,10 @@ class Client {
   }
 }
 
-function updateAllClient(data){
+function updateAllClient(data) {
   console.log("updateAllClient");
   console.log(data);
-  for(const c of clients){
+  for (const c of clients) {
     c.update(data);
   }
 }
@@ -85,6 +106,12 @@ export default async function wsConnection(userId, ws) {
       );
       const recentTags = await database.getTagRecentUpdate(onError);
       updateAllClient({ message: message, recentTags: recentTags });
+    } else if (json.type === "setKeep") {
+      await database.setKeep(json.mid, json.keep, userId, onError);
+      const messages = await database.getMessageAll(onError);
+      updateAllClient({
+        messages: messages,
+      });
     } else if (json.type === "subscribe") {
       c.subscribe(json.tags);
       const messages = await database.getMessageAll(onError);

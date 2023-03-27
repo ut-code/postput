@@ -70,9 +70,9 @@ const socket = useSocket();
 * (WebSocketに接続する)
 	* App.jsx: `socket.setSid(sid);` & `socket.connect();`
 	* WebSocket: `ws://localhost:3000/?sid=${sid}`に接続
-* 自分のユーザー名
-	* App.jsx: `socket.username` -> `"a"`
-	* WebSocket: `{type: "user", userId: 0, username: "a", favoriteTags: [{name: "a"}, ...]}`
+* 自分のユーザー名, ユーザーid
+	* App.jsx: `socket.username` -> `"a"`, `socket.userId` -> 0
+	* WebSocket: `{type: "user", userId: 0, username: "a"}`
 	* database.js: `getUser("a");`, `getUserById(0);`
 * メッセージの送信
 	* App.jsx: `socket.send({text: "a", tags["a", "b"]});`
@@ -122,3 +122,20 @@ const socket = useSocket();
 		* なんでこっちはsetTagFavoriteじゃないんだ
 	* database.js: `updateFavoriteTags(userId, favoriteTags);`
 		* なんでこれだけsetじゃなくてupdateなんだ
+* 保留メッセージの数(`#.keep-${userId}`のメッセージ数)
+	* App.jsx: `socket.keepNum` -> 0
+	* WebSocket: `{type: "keepNum", keepNum: 0}`
+	* database.js: getMessageAllからfilterする
+* 保留メッセージの設定
+	* App.jsx: `socket.setKeep(メッセージid, trueまたはfalse);`
+	* WebSocket: `{type: "setKeep", mid: メッセージid, keep: trueまたはfalse}`
+	* database.js: `setKeep(mid, keep, userId, onError)`
+
+## タグ
+* 各メッセージに1つまたは複数のタグがつく
+* タグは #aaa のような形式
+* `#`を除いた部分がタグ名
+* `.`で始まるタグ名(`#.`ではじまるタグ)は使用できない&非表示
+	* `#.keep-${userId}`: そのユーザーの保留メッセージ
+		* 他のユーザーは見れない
+	* `#.reply-${messageId}`: そのメッセージへの返信スレッド
