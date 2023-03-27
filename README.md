@@ -105,6 +105,10 @@ const socket = useSocket();
 		* database.js: 
 			* 初回 `getMessageAll(onError);`
 			* 新規メッセージ追加時 `createMessage`の戻り値
+* メッセージにタグを追加・削除
+	* App.jsx: `socket.updateMessage(メッセージid, ["a", ...]);`
+	* WebSocket: `{type: "updateMessage", mid: メッセージid, tags: ["a", ...]}`
+	* database.js: `updateMessage(mid, tags, onError);`
 * 全タグの一覧
 	* 消しました
 * 全タグを最近更新された順に一覧
@@ -128,9 +132,7 @@ const socket = useSocket();
 	* WebSocket: `{type: "keepNum", keepNum: 0}`
 	* database.js: getMessageAllからfilterする
 * 保留メッセージの設定
-	* App.jsx: `socket.setKeep(メッセージid, trueまたはfalse);`
-	* WebSocket: `{type: "setKeep", mid: メッセージid, keep: trueまたはfalse}`
-	* database.js: `setKeep(mid, keep, userId, onError)`
+	* updateMessageでやる
 
 ## タグ
 * 各メッセージに1つまたは複数のタグがつく

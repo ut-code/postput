@@ -70,8 +70,9 @@ class Client {
       });
       this.send({
         type: "keepNum",
-        keepNum: data.messages.filter((m) => m.tags.indexOf(`.keep-${this.userId}`) >= 0)
-          .length,
+        keepNum: data.messages.filter(
+          (m) => m.tags.indexOf(`.keep-${this.userId}`) >= 0
+        ).length,
       });
     }
     if (data.recentTags) {
@@ -106,12 +107,11 @@ export default async function wsConnection(userId, ws) {
       );
       const recentTags = await database.getTagRecentUpdate(onError);
       updateAllClient({ message: message, recentTags: recentTags });
-    } else if (json.type === "setKeep") {
-      await database.setKeep(json.mid, json.keep, userId, onError);
+    } else if (json.type === "updateMessage") {
+      await database.updateMessage(json.mid, json.tags, userId, onError);
       const messages = await database.getMessageAll(onError);
-      updateAllClient({
-        messages: messages,
-      });
+      const recentTags = await database.getTagRecentUpdate(onError);
+      updateAllClient({ messages: messages, recentTags: recentTags });
     } else if (json.type === "subscribe") {
       c.subscribe(json.tags);
       const messages = await database.getMessageAll(onError);

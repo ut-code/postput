@@ -119,8 +119,8 @@ export const getReplyNum = async (mid, onError) => {
     });
     return replies.messages.length;
   } catch (e) {
-    console.error(e);
-    onError(e.message);
+    // console.error(e);
+    // onError(e.message);
     return 0;
   }
 };
@@ -137,15 +137,17 @@ export const getMessageAll = async (onError) => {
         user: true,
       },
     });
-    return await Promise.all(messages.map(async (m) => ({
-      id: m.id,
-      user: { username: m.user.username },
-      text: m.text,
-      sendTime: m.sendTime,
-      updateTime: m.updateTime,
-      tags: m.tags ? m.tags.map((t) => t.tag.name) : [],
-      replyNum: await getReplyNum(m.id, onError),
-    })));
+    return await Promise.all(
+      messages.map(async (m) => ({
+        id: m.id,
+        user: { username: m.user.username },
+        text: m.text,
+        sendTime: m.sendTime,
+        updateTime: m.updateTime,
+        tags: m.tags ? m.tags.map((t) => t.tag.name) : [],
+        replyNum: await getReplyNum(m.id, onError),
+      }))
+    );
   } catch (e) {
     console.error(e.message);
     onError(e.message);
@@ -218,41 +220,67 @@ export const createMessage = async (message, onError) => {
     onError(e.message);
   }
 };
-export const setKeep = async (mid, keep, userId, onError) => {
+export const updateMessage = async (mid, tags, onError) => {
   try {
     const now = new Date();
-    if (keep) {
-      await client.tagOnMessage.create({
-        data: {
-          message: {
-            connect: {
-              id: mid,
-            },
-          },
-          tag: {
-            connectOrCreate: {
-              where: {
-                name: `.keep-${userId}`,
-              },
-              create: {
-                name: `.keep-${userId}`,
-                createTime: now,
-                updateTime: now,
-              },
-            },
-          },
-        },
-      });
-    } else {
-      await client.tagOnMessage.deleteMany({
+    const prevTags = (
+      await client.message.findUnique({
         where: {
-          messageId: mid,
-          tag: {
-            name: `.keep-${userId}`,
+          id: mid,
+        },
+        include: {
+          tags: {
+            include: {
+              tag: true,
+            },
           },
         },
-      });
-    }
+      })
+    ).tags.map((t) => t.tag.name);
+    // prevTags → tags
+    // 追加されたタグを確認
+    await Promise.all(
+      tags
+        .filter((t) => prevTags.indexOf(t) === -1)
+        .map(async (t) => {
+          await client.tagOnMessage.create({
+            data: {
+              message: {
+                connect: {
+                  id: mid,
+                },
+              },
+              tag: {
+                connectOrCreate: {
+                  where: {
+                    name: t,
+                  },
+                  create: {
+                    name: t,
+                    createTime: now,
+                    updateTime: now,
+                  },
+                },
+              },
+            },
+          });
+        })
+    );
+    // 削除されたタグを確認
+    await Promise.all(
+      prevTags
+        .filter((t) => tags.indexOf(t) === -1)
+        .map(async (t) => {
+          await client.tagOnMessage.deleteMany({
+            where: {
+              messageId: mid,
+              tag: {
+                name: t,
+              },
+            },
+          });
+        })
+    );
   } catch (e) {
     console.error(e.message);
     onError(e.message);
