@@ -132,6 +132,7 @@ function App() {
   const [currentTags, setCurrentTags] = useState([]);
   useEffect(() => {
     socket.subscribe(currentTags);
+    setTagsToSend(currentTags);
   }, [currentTags]);
 
   const headerHeight = 60;
