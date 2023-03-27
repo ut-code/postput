@@ -100,7 +100,7 @@ export const getTagRecentUpdate = async (onError) => {
         createTime: m.createTime,
         updateTime: m.updateTime,
       }))
-      .filter((m) => !m.name.startsWith(".")); // .ではじまるタグは非表示
+      .filter((m) => !m.name.startsWith("."));// .ではじまるタグは非表示
   } catch (e) {
     console.error(e.message);
     onError(e.message);

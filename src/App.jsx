@@ -44,7 +44,7 @@ function TagEdit(props) {
       value={tagInput}
       onChange={(e) => {
         let value = e.target.value;
-        if(value.startsWith(".")){
+        if (value.startsWith(".")) {
           value = value.slice(1);
         }
         if (!value.startsWith("#")) {
@@ -148,6 +148,28 @@ function Message(props) {
   );
 }
 
+function TimeDiff(props) {
+  const { time } = props;
+  const [now, setNow] = useState(new Date().getTime());
+  useEffect(() => {
+    const i = setInterval(() => {
+      setNow(new Date().getTime());
+    }, 10000);
+    return () => clearInterval(i);
+  }, []);
+  const diff = now - time;
+  if (diff < 60 * 1000) {
+    return <>&lt; 1m</>;
+  }
+  if (diff < 60 * 60 * 1000) {
+    return <>{Math.floor(diff / 60 / 1000)}m</>;
+  }
+  if (diff < 24 * 60 * 60 * 1000) {
+    return <>{Math.floor(diff / 60 / 60 / 1000)}h</>;
+  }
+  return <>{Math.floor(diff / 24 / 60 / 60 / 1000)}d</>;
+}
+
 function App() {
   const [loginState, setLoginState] = useState(false);
   const socket = useSocket();
@@ -165,9 +187,6 @@ function App() {
     socket.subscribe(currentTags);
     setTagsToSend(currentTags);
   }, [currentTags]);
-
-  const headerHeight = 60;
-  const footerHeight = 120;
 
   const [keepTagName, setKeepTagName] = useState(".keep-");
   useEffect(() => {
@@ -207,6 +226,7 @@ function App() {
             <Autocomplete
               disablePortal
               options={socket.recentTags
+                .slice()
                 .sort((a, b) =>
                   a.name > b.name ? 1 : a.name < b.name ? -1 : 0
                 )
@@ -276,6 +296,9 @@ function App() {
                       }
                     }}
                   />
+                  <span style={{ fontSize: "smaller", color: "dimgray" }}>
+                    <TimeDiff time={new Date(t.updateTime).getTime()} />
+                  </span>
                 </div>
               ))}
             </Stack>
