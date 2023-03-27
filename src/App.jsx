@@ -194,9 +194,9 @@ function App() {
           }}
         >
           タグを検索
-          <select>
+          <select onChange={(e) => {setCurrentTags(currentTags.concat([e.target.value]))}}>
             {socket.recentTags.map((t) => (
-              <option>
+              <option value={t.name}>
                 <Tag tagname={t.name}></Tag>
               </option>
             ))}

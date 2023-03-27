@@ -115,7 +115,7 @@ const socket = useSocket();
 	* WebSocket: `{type: "tagFavorite", favoriteTags: [...]}`
 	* database.js: userと同じ
 * 固定タグを設定
-	* App.jsx: `socket.setFavoriteTags(["a", "b", ...])`
+	* App.jsx: `socket.setFavoriteTags(["a", "b", ...])` または `socket.setFavoriteTags([{name: "a"}, {name: "b"}, ...])`
 		* なんでfavoriteTagsの取得と仕様違うんだ
 		* ちなみにsocket.jsx内では名前被りを解決するためfavoriteTagsのセッター関数が`setFavoriteTagsLocal`になっているのもややこしい
 	* WebSocket: `{type: "setFavoriteTags", favoriteTags: [...]}`
