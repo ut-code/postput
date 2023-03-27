@@ -17,12 +17,12 @@ import Login from "./login";
 function ShowDate(props) {
   const { date } = props;
   return (
-    <>
+    <span style={{ color: "dimgray", fontSize: "small", marginRight: 3 }}>
       {date.getMonth() + 1}月{date.getDate()}日{date.getHours()}:
       {date.getMinutes() < 10
         ? "0" + date.getMinutes().toString()
         : date.getMinutes()}
-    </>
+    </span>
   );
 }
 
@@ -131,21 +131,12 @@ function LargeTag(props) {
 
 function Name(props) {
   const { name } = props;
-  return (
-    <>
-      <span class="name">{name}</span>
-    </>
-  );
+  return <span style={{ color: "green", marginRight: 5 }}>{name}</span>;
 }
 
 function Message(props) {
   const { text } = props;
-  return (
-    <>
-      <br />
-      <p class="message">{text}</p>
-    </>
-  );
+  return <div style={{ marginTop: 5, marginBottom: 10 }}>{text}</div>;
 }
 
 function TimeDiff(props) {
@@ -210,7 +201,6 @@ function App() {
 
   return (
     <>
-      <link rel="stylesheet" href="../style.css"></link>
       <Box
         sx={{
           position: "absolute",
@@ -285,7 +275,7 @@ function App() {
               </a>
             </p>
             <Stack spacing={1}>
-              <div>#最近更新されたタグ</div>
+              <div>最近更新されたタグ</div>
               {socket.recentTags.map((t) => (
                 <div>
                   <Tag
@@ -353,21 +343,19 @@ function App() {
               <p>サイドバーから表示するタグを選択してください</p>
             )}
             {socket.messages.map((m) => (
-              <Box key={m.id} sx={{ border: 1 }}>
+              <Box key={m.id} sx={{ px: 2, py: 1 }}>
                 <Name name={m.user.username} />
                 <ShowDate date={new Date(m.sendTime)} />
                 {m.tags.map((t) => (
-                  <>
-                    <Tag
-                      tagname={t}
-                      onDelete={() => {
-                        socket.updateMessage(
-                          m.id,
-                          m.tags.filter((tag) => tag !== t)
-                        );
-                      }}
-                    />
-                  </>
+                  <Tag
+                    tagname={t}
+                    onDelete={() => {
+                      socket.updateMessage(
+                        m.id,
+                        m.tags.filter((tag) => tag !== t)
+                      );
+                    }}
+                  />
                 ))}
                 <TagEdit
                   tags={[]}
@@ -392,7 +380,9 @@ function App() {
                   <WatchLaterIcon fontSize="small" />
                 </IconButton>
                 <Message text={m.text} />
-                {m.replyNum}件の返信
+                <div style={{ fontSize: "small", marginLeft: 5 }}>
+                  {m.replyNum}件の返信
+                </div>
               </Box>
             ))}
           </Stack>
@@ -404,9 +394,9 @@ function App() {
             flexShrink: 0,
           }}
         >
-          <Paper elevation={3} sx={{ m: 1 }}>
+          <Paper elevation={3} sx={{ m: 1, p:1 }}>
             <Grid container spacing={1} alignItems="baseline">
-              <Grid item>タグ:</Grid>
+              <Grid item>送信先のタグ:</Grid>
               <Grid item>
                 {tagsToSend.map((t) => (
                   <Tag
