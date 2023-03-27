@@ -68,7 +68,7 @@ export const SocketProvider = (props) => {
         ws.send(JSON.stringify({type: "subscribe", tags: tags}));
       });
       setSetFavoriteTags((setFavoriteTags) => (tags) => {
-        ws.send(JSON.stringify({type: "setFavoriteTags", favoriteTags:tags}));
+        ws.send(JSON.stringify({type: "setFavoriteTags", favoriteTags:tags.map((t) => (typeof t === "string" ? t : t.name))}));
       })
     }
   }, [ws, userId]);
