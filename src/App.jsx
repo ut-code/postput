@@ -3,6 +3,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
@@ -107,6 +108,20 @@ function Tag(props) {
     </span>
   );
 }
+function LargeTag(props) {
+  const { tagname, onDelete, onClick } = props;
+  return (
+    <span style={{ paddingLeft: 2, paddingRight: 2 }}>
+      <Chip
+        color="error"
+        variant="outlined"
+        onDelete={onDelete}
+        onClick={onClick}
+        label={"#" + tagname}
+      />
+    </span>
+  );
+}
 
 function Name(props) {
   const { name } = props;
@@ -181,121 +196,83 @@ function App() {
           background: "skyblue",
         }}
       >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "1%",
-            left: "10%",
-            width: "80%",
-            height: "10%",
-            background: "yellowgreen",
-          }}
-        >
-          <Autocomplete
-            disablePortal
-            options={socket.recentTags
-              .sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0))
-              .map((t) => t.name)}
-            renderInput={(params) => (
-              <TextField {...params} label="タグを検索" />
-            )}
-            inputValue={searchTagText}
-            onInputChange={(e, value) => setSearchTagText(value)}
-            value={null}
-            onChange={(e, value) => {
-              if (currentTags.indexOf(value) === -1) {
-                setCurrentTags(currentTags.concat([value]));
-              }
-              setSearchTagText("");
-            }}
-          />
-        </Box>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "15%",
-            left: "10%",
-            width: "80%",
-            height: "30%",
-            background: "yellowgreen",
-          }}
-        >
-          <Stack spacing={1}>
-            <div>固定タグ</div>
-            {socket.favoriteTags.map((t) => (
-              <div>
-                <Tag
-                  tagname={t.name}
-                  onDelete={() => {
-                    socket.setFavoriteTags(
-                      socket.favoriteTags.filter((tag) => tag.name !== t.name)
-                    );
-                  }}
-                  onClick={() => {
-                    if (currentTags.indexOf(t.name) === -1) {
-                      setCurrentTags(currentTags.concat([t.name]));
-                    }
-                  }}
-                />
-              </div>
-            ))}
-            <button
-              onClick={() => {
-                socket.setFavoriteTags(currentTags);
+        <Box sx={{ width: "100%", height: "100%", overflow: "auto" }}>
+          <Stack sx={{ m: 2 }} spacing={3}>
+            <Autocomplete
+              disablePortal
+              options={socket.recentTags
+                .sort((a, b) =>
+                  a.name > b.name ? 1 : a.name < b.name ? -1 : 0
+                )
+                .map((t) => t.name)}
+              renderInput={(params) => (
+                <TextField {...params} label="タグを検索" />
+              )}
+              inputValue={searchTagText}
+              onInputChange={(e, value) => setSearchTagText(value)}
+              value={null}
+              onChange={(e, value) => {
+                if (currentTags.indexOf(value) === -1) {
+                  setCurrentTags(currentTags.concat([value]));
+                }
+                setSearchTagText("");
               }}
-            >
-              今見てる奴を固定タグに設定する(仮)
-            </button>
-          </Stack>
-        </Box>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "10%",
-            width: "80%",
-            height: "10%",
-            background: "yellowgreen",
-          }}
-        >
-          <p>
-            <a
-              href="#"
-              onClick={() => {
-                setCurrentTags([keepTagName]);
-              }}
-            >
-              保留メッセージ
-              <Badge badgeContent={socket.keepNum} color="primary">
-                <WatchLaterIcon color="action" />
-              </Badge>
-            </a>
-          </p>
-        </Box>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "65%",
-            left: "10%",
-            width: "80%",
-            height: "30%",
-            background: "yellowgreen",
-          }}
-        >
-          <Stack spacing={1}>
-            <div>#最近更新されたタグ</div>
-            {socket.recentTags.map((t) => (
-              <div>
-                <Tag
-                  tagname={t.name}
-                  onClick={() => {
-                    if (currentTags.indexOf(t.name) === -1) {
-                      setCurrentTags(currentTags.concat([t.name]));
-                    }
-                  }}
-                />
-              </div>
-            ))}
+            />
+            <Stack spacing={1}>
+              <div>固定タグ</div>
+              {socket.favoriteTags.map((t) => (
+                <div>
+                  <Tag
+                    tagname={t.name}
+                    onDelete={() => {
+                      socket.setFavoriteTags(
+                        socket.favoriteTags.filter((tag) => tag.name !== t.name)
+                      );
+                    }}
+                    onClick={() => {
+                      if (currentTags.indexOf(t.name) === -1) {
+                        setCurrentTags(currentTags.concat([t.name]));
+                      }
+                    }}
+                  />
+                </div>
+              ))}
+              <button
+                onClick={() => {
+                  socket.setFavoriteTags(currentTags);
+                }}
+              >
+                今見てる奴を固定タグに設定する(仮)
+              </button>
+            </Stack>
+            <p>
+              <a
+                href="#"
+                onClick={() => {
+                  setCurrentTags([keepTagName]);
+                }}
+              >
+                保留メッセージ
+                <Badge badgeContent={socket.keepNum} color="primary">
+                  <WatchLaterIcon color="action" />
+                </Badge>
+              </a>
+            </p>
+            <Stack spacing={1}>
+              <div>#最近更新されたタグ</div>
+              {socket.recentTags.map((t) => (
+                <div>
+                  <Tag
+                    tagname={t.name}
+                    onClick={() => {
+                      if (currentTags.indexOf(t.name) === -1) {
+                        setCurrentTags(currentTags.concat([t.name]));
+                      }
+                    }}
+                  />
+                </div>
+              ))}
+            </Stack>
           </Stack>
         </Box>
       </Box>
@@ -306,42 +283,38 @@ function App() {
           right: 0,
           width: "70%",
           height: "100%",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <Box
           sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: headerHeight,
-            background: "yellow",
+            flexBasis:"auto",
+            flexGrow:0,
+            flexShrink:0,
           }}
         >
-          メッセージ一覧:
-          <p>
-            今は
+        <Paper elevation={3} sx={{m:1}}>
+          <Grid container alignItems="center" sx={{height:"100%", p:1}}>
             {currentTags.map((t) => (
-              <>
-                <Tag
+              <Grid item>
+                <LargeTag
                   tagname={t}
                   onDelete={() => {
                     setCurrentTags(currentTags.filter((tag) => tag !== t));
                   }}
                 />
-              </>
+              </Grid>
             ))}
-            を表示しています
-          </p>
+          </Grid>
+          </Paper>
         </Box>
         <Box
           sx={{
-            overflow: "auto",
-            position: "absolute",
-            top: headerHeight,
-            bottom: footerHeight,
-            left: 0,
-            width: "100%",
+            flexBasis:"auto",
+            flexGrow:1,
+            flexShrink:1,
+            overflow:"auto",
           }}
         >
           <Stack spacing={1}>
@@ -395,13 +368,12 @@ function App() {
         </Box>
         <Box
           sx={{
-            position: "absolute",
-            left: 0,
-            bottom: 0,
-            width: "100%",
-            height: footerHeight,
+            flexBasis:"auto",
+            flexGrow:0,
+            flexShrink:0,
           }}
         >
+        <Paper elevation={3} sx={{m:1}}>
           <Grid container spacing={1} alignItems="baseline">
             <Grid item>タグ:</Grid>
             <Grid item>
@@ -432,6 +404,7 @@ function App() {
               setTextToSend("");
             }}
           />
+          </Paper>
         </Box>
       </Box>
     </>
