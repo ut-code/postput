@@ -44,6 +44,9 @@ function TagEdit(props) {
       value={tagInput}
       onChange={(e) => {
         let value = e.target.value;
+        if(value.startsWith(".")){
+          value = value.slice(1);
+        }
         if (!value.startsWith("#")) {
           value = "#" + value;
         }
@@ -96,15 +99,19 @@ function SendMessage(props) {
 function Tag(props) {
   const { tagname, onDelete, onClick } = props;
   return (
-    <span style={{ paddingLeft: 2, paddingRight: 2 }}>
-      <Chip
-        color="error"
-        onDelete={onDelete}
-        onClick={onClick}
-        size="small"
-        label={"#" + tagname}
-      />
-    </span>
+    <>
+      {tagname.startsWith(".") || (
+        <span style={{ paddingLeft: 2, paddingRight: 2 }}>
+          <Chip
+            color="error"
+            onDelete={onDelete}
+            onClick={onClick}
+            size="small"
+            label={"#" + tagname}
+          />
+        </span>
+      )}
+    </>
   );
 }
 function LargeTag(props) {
@@ -293,20 +300,22 @@ function App() {
             flexShrink: 0,
           }}
         >
-          <Paper elevation={3} sx={{ m: 1 }}>
-            <Grid container alignItems="center" sx={{ height: "100%", p: 1 }}>
-              {currentTags.map((t) => (
-                <Grid item>
-                  <LargeTag
-                    tagname={t}
-                    onDelete={() => {
-                      setCurrentTags(currentTags.filter((tag) => tag !== t));
-                    }}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          </Paper>
+          {currentTags.length > 0 && (
+            <Paper elevation={3} sx={{ m: 1 }}>
+              <Grid container alignItems="center" sx={{ height: "100%", p: 1 }}>
+                {currentTags.map((t) => (
+                  <Grid item>
+                    <LargeTag
+                      tagname={t}
+                      onDelete={() => {
+                        setCurrentTags(currentTags.filter((tag) => tag !== t));
+                      }}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Paper>
+          )}
         </Box>
         <Box
           sx={{
