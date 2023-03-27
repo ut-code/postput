@@ -352,7 +352,8 @@ function App() {
                 <Name name={m.user.username} />
                 <ShowDate date={new Date(m.sendTime)} />
                 {m.tags.map((t) => (
-                  <Tag tagname={t} />
+                  <><Tag tagname={t} />
+                  <button onClick={()=>{socket.updateMessage(m.id, m.tags.filter((tag) => tag !== t))}}>削除</button></>
                 ))}
                 <IconButton
                   size="small"
