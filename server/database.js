@@ -107,6 +107,24 @@ export const getTagRecentUpdate = async (onError) => {
   }
   return [];
 };
+export const getReplyNum = async (mid, onError) => {
+  try {
+    const replies = await client.tag.findUnique({
+      where: {
+        name: `.reply-${mid}`,
+      },
+      include: {
+        messages: true,
+      },
+    });
+    return replies.messages.length;
+  } catch (e) {
+    console.error(e);
+    onError(e.message);
+    return 0;
+  }
+};
+
 export const getMessageAll = async (onError) => {
   try {
     const messages = await client.message.findMany({
@@ -119,14 +137,15 @@ export const getMessageAll = async (onError) => {
         user: true,
       },
     });
-    return messages.map((m) => ({
+    return await Promise.all(messages.map(async (m) => ({
       id: m.id,
       user: { username: m.user.username },
       text: m.text,
       sendTime: m.sendTime,
       updateTime: m.updateTime,
       tags: m.tags ? m.tags.map((t) => t.tag.name) : [],
-    }));
+      replyNum: await getReplyNum(m.id, onError),
+    })));
   } catch (e) {
     console.error(e.message);
     onError(e.message);

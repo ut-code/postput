@@ -95,6 +95,7 @@ const socket = useSocket();
 				"sendTime": "date",
 				"updateTime": "date",
 				"tags": ["a", "b"],
+				"replyNum": 5,
 			},
 		]
 		```

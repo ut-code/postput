@@ -351,6 +351,7 @@ function App() {
                   <WatchLaterIcon fontSize="small" />
                 </IconButton>
                 <Message text={m.text} />
+                {m.replyNum}件の返信
               </Box>
             ))}
           </Stack>
