@@ -13,6 +13,7 @@ export const SocketProvider = (props) => {
   const [favoriteTags, setFavoriteTagsLocal] = useState([]);
   const [userId, setUserId] = useState(0);
   const [username, setUsername] = useState("");
+  const [keepNum, setKeepNum] = useState(0);
   const [sid, setSid] = useState("");
   const connect = async () => {
     if (ws == null) {
@@ -48,6 +49,8 @@ export const SocketProvider = (props) => {
           setUserId(json.userId);
         } else if (json.type === "tagFavorite"){
           setFavoriteTagsLocal(json.favoriteTags);
+        } else if (json.type === "keepNum"){
+          setKeepNum(json.keepNum);
         } else if (json.type === "error") {
           console.error("server error: " + json.message);
         }
@@ -85,6 +88,7 @@ export const SocketProvider = (props) => {
         favoriteTags: favoriteTags,
         subscribe: subscribe,
         setFavoriteTags: setFavoriteTags,
+        keepNum: keepNum,
       }}
     >
       {props.children}

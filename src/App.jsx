@@ -232,7 +232,7 @@ function App() {
         >
           <p>保留メッセージ</p>
           <p>
-            ○件のメッセージが保留されています<button>一覧を見る</button>
+            {socket.keepNum}件のメッセージが保留されています<button>一覧を見る</button>
           </p>
         </Box>
         <Box

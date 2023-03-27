@@ -20,8 +20,23 @@ class Client {
       message: message,
     });
   }
+  isValidTag(tagName) {
+    if (!tagName.startsWith(".")) {
+      // 通常のタグ
+      return true;
+    }
+    if (tagName === `.keep-${this.userId}`) {
+      // このユーザーの保留タグ
+      return true;
+    }
+    if (tagName.startsWith(".reply-")) {
+      // 返信タグ
+      return true;
+    }
+    return false;
+  }
   subscribe(tags) {
-    this.subscribedTags = tags;
+    this.subscribedTags = tags.filter((t) => this.isValidTag(t));
   }
   isSubscribed(tags) {
     return tags.findIndex((t) => this.subscribedTags.indexOf(t) >= 0) >= 0;
@@ -59,13 +74,19 @@ class Client {
         tags: data.recentTags,
       });
     }
+    if (data.keepNum){
+      this.send({
+        type: "keepNum",
+        keepNum: data.keepNum,
+      });
+    }
   }
 }
 
-function updateAllClient(data){
+function updateAllClient(data) {
   console.log("updateAllClient");
   console.log(data);
-  for(const c of clients){
+  for (const c of clients) {
     c.update(data);
   }
 }
@@ -103,6 +124,7 @@ export default async function wsConnection(userId, ws) {
         favoriteTags: user.favoriteTags,
         messages: messages,
         recentTags: recentTags,
+        keepNum: messages.filter((m) => (m.tags.indexOf(`.keep-${userId}`) >= 0)).length,
       });
     }
   });

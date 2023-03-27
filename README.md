@@ -122,3 +122,16 @@ const socket = useSocket();
 		* なんでこっちはsetTagFavoriteじゃないんだ
 	* database.js: `updateFavoriteTags(userId, favoriteTags);`
 		* なんでこれだけsetじゃなくてupdateなんだ
+* 保留メッセージの数(`#.keep-${userId}`のメッセージ数)
+	* App.jsx: `socket.keepNum` -> 0
+	* WebSocket: `{type: "keepNum", keepNum: 0}`
+	* database.js: getMessageAllからfilterする
+
+## タグ
+* 各メッセージに1つまたは複数のタグがつく
+* タグは #aaa のような形式
+* `#`を除いた部分がタグ名
+* `.`で始まるタグ名(`#.`ではじまるタグ)は使用できない&非表示
+	* `#.keep-${userId}`: そのユーザーの保留メッセージ
+		* 他のユーザーは見れない
+	* `#.reply-${messageId}`: そのメッセージへの返信スレッド
