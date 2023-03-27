@@ -154,7 +154,7 @@ function App() {
 
   const [keepTagName, setKeepTagName] = useState(".keep-");
   useEffect(() => {
-    setKeepTagName(`.keep-${socket.userId}`)
+    setKeepTagName(`.keep-${socket.userId}`);
   }, [setKeepTagName, socket.userId]);
 
   if (!loginState) {
@@ -194,7 +194,11 @@ function App() {
           }}
         >
           タグを検索
-          <select onChange={(e) => {setCurrentTags(currentTags.concat([e.target.value]))}}>
+          <select
+            onChange={(e) => {
+              setCurrentTags(currentTags.concat([e.target.value]));
+            }}
+          >
             {socket.recentTags.map((t) => (
               <option value={t.name}>
                 <Tag tagname={t.name}></Tag>
@@ -223,7 +227,16 @@ function App() {
               }}
             >
               <Tag tagname={t.name}></Tag>
-              <button type="button" onClick={()=>{socket.setFavoriteTags(socket.favoriteTags.filter((tag)=>tag.name !== t.name))}}>削除</button>
+              <button
+                type="button"
+                onClick={() => {
+                  socket.setFavoriteTags(
+                    socket.favoriteTags.filter((tag) => tag.name !== t.name)
+                  );
+                }}
+              >
+                削除
+              </button>
               <br />
             </a>
           ))}
@@ -249,7 +262,7 @@ function App() {
             <a
               href="#"
               onClick={() => {
-                  setCurrentTags([keepTagName]);
+                setCurrentTags([keepTagName]);
               }}
             >
               保留メッセージ
@@ -309,8 +322,15 @@ function App() {
             今は
             {currentTags.map((t) => (
               <>
-              <Tag tagname={t}></Tag>
-              <button type="button" onClick={() => {setCurrentTags(currentTags.filter((tag)=>tag !== t))}}>削除</button>
+                <Tag tagname={t}></Tag>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentTags(currentTags.filter((tag) => tag !== t));
+                  }}
+                >
+                  削除
+                </button>
               </>
             ))}
             を表示しています
@@ -336,17 +356,17 @@ function App() {
                 ))}
                 <IconButton
                   size="small"
-                  color={
-                    m.tags.indexOf(keepTagName) >= 0
-                      ? "primary"
-                      : ""
-                  }
-                  onClick={() =>
-                    socket.setKeep(
-                      m.id,
-                      !(m.tags.indexOf(keepTagName) >= 0)
-                    )
-                  }
+                  color={m.tags.indexOf(keepTagName) >= 0 ? "primary" : ""}
+                  onClick={() => {
+                    if (m.tags.indexOf(keepTagName) >= 0) {
+                      socket.updateMessage(
+                        m.id,
+                        m.tags.filter((t) => t !== keepTagName)
+                      );
+                    } else {
+                      socket.updateMessage(m.id, m.tags.concat([keepTagName]));
+                    }
+                  }}
                 >
                   <WatchLaterIcon fontSize="small" />
                 </IconButton>

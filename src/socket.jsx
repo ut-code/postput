@@ -14,7 +14,7 @@ export const SocketProvider = (props) => {
   const [userId, setUserId] = useState(0);
   const [username, setUsername] = useState("");
   const [keepNum, setKeepNum] = useState(0);
-  const [setKeep, setSetKeep] = useState(() => () => {});
+  const [updateMessage, setUpdateMessage] = useState(() => () => {});
   const [sid, setSid] = useState("");
   const connect = async () => {
     if (ws == null) {
@@ -72,8 +72,8 @@ export const SocketProvider = (props) => {
       setSetFavoriteTags((setFavoriteTags) => (tags) => {
         ws.send(JSON.stringify({type: "setFavoriteTags", favoriteTags:tags.map((t) => (typeof t === "string" ? t : t.name))}));
       });
-      setSetKeep((setKeep) => (mid, keep) => {
-        ws.send(JSON.stringify({ type: "setKeep", mid: mid, keep: keep }));
+      setUpdateMessage((updateMessage) => (mid, tags) => {
+        ws.send(JSON.stringify({ type: "updateMessage", mid: mid, tags: tags }));
       });
     }
   }, [ws, userId]);
@@ -92,7 +92,7 @@ export const SocketProvider = (props) => {
         subscribe,
         setFavoriteTags,
         keepNum,
-        setKeep,
+        updateMessage,
       }}
     >
       {props.children}
