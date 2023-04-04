@@ -11,6 +11,8 @@ import SendIcon from "@mui/icons-material/Send";
 import WatchLaterIcon from "@mui/icons-material/WatchLater";
 import Badge from "@mui/material/Badge";
 import Chip from "@mui/material/Chip";
+import PushPinIcon from "@mui/icons-material/PushPin";
+import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 import { useSocket } from "./socket";
 import Login from "./login";
 
@@ -235,7 +237,13 @@ function App() {
               }}
             />
             <Stack spacing={1}>
-              <div>固定タグ</div>
+              <Grid container alignItems="center">
+                <Grid item>固定タグ</Grid>
+                <Grid item>
+                  {" "}
+                  <PushPinIcon fontSize="small" />
+                </Grid>
+              </Grid>
               {socket.favoriteTags.map((t) => (
                 <div>
                   <Tag
@@ -253,13 +261,6 @@ function App() {
                   />
                 </div>
               ))}
-              <button
-                onClick={() => {
-                  socket.setFavoriteTags(currentTags);
-                }}
-              >
-                今見てる奴を固定タグに設定する(仮)
-              </button>
             </Stack>
             <p>
               <a
@@ -268,10 +269,14 @@ function App() {
                   setCurrentTags([keepTagName]);
                 }}
               >
-                保留メッセージ
-                <Badge badgeContent={socket.keepNum} color="primary">
-                  <WatchLaterIcon color="action" />
-                </Badge>
+                <Grid container alignItems="center">
+                  <Grid item>保留メッセージ</Grid>
+                  <Grid item>
+                    <Badge badgeContent={socket.keepNum} color="primary">
+                      <WatchLaterIcon color="action" fontSize="small" />
+                    </Badge>
+                  </Grid>
+                </Grid>
               </a>
             </p>
             <Stack spacing={1}>
@@ -326,6 +331,37 @@ function App() {
                     />
                   </Grid>
                 ))}
+                <Grid item>
+                  {currentTags.findIndex(
+                    (tag) =>
+                      socket.favoriteTags.findIndex(
+                        (favTag) => favTag.name === tag
+                      ) === -1
+                  ) >= 0 ? (
+                    /* currentTagの中でfavoriteTagに登録されてないものが存在するとき */
+                    <IconButton
+                      onClick={() => {
+                        socket.setFavoriteTags(
+                          socket.favoriteTags.concat(
+                            currentTags.filter(
+                              (tag) =>
+                                socket.favoriteTags.findIndex(
+                                  (favTag) => favTag.name === tag
+                                ) === -1
+                            )
+                          )
+                        );
+                      }}
+                      color="error"
+                      size="small"
+                    >
+                      <PushPinOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  ) : (
+                    /* currentTagの中でfavoriteTagに登録されてないものが存在しないとき */
+                    <PushPinIcon fontSize="small" color="error" />
+                  )}
+                </Grid>
               </Grid>
             </Paper>
           )}
@@ -394,7 +430,7 @@ function App() {
             flexShrink: 0,
           }}
         >
-          <Paper elevation={3} sx={{ m: 1, p:1 }}>
+          <Paper elevation={3} sx={{ m: 1, p: 1 }}>
             <Grid container spacing={1} alignItems="baseline">
               <Grid item>送信先のタグ:</Grid>
               <Grid item>
